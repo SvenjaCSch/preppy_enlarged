@@ -3,8 +3,9 @@
 {% block content %}
 <div class="flashcards_container">
     <h1>Flashcards</h1>
-    <form action="{{ url_for('student.flashcards') }}" method="post">
-        <button type="submit" class="generate-btn">Generate Flashcards</button>
+
+    <form action="{{ url_for('student.flashcards') }}" method="get">
+        <button type="submit" class="generate-btn">View Flashcards</button>
     </form>
 
     <!-- Store flashcards data in a data attribute -->
@@ -23,5 +24,5 @@
         <button onclick="nextCard()" class="action-btn">Next Card</button>
     </div>
 </div>
-<script src="/static/js/flashcards.js"></script>
+<script src="{{ url_for('static', filename='js/flashcards.js') }}"></script>
 {% endblock %}

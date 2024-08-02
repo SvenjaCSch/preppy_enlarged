@@ -45,77 +45,21 @@ def read_file_with_multiple_encodings(filepath, encodings=['utf-8', 'ISO-8859-1'
         f"Failed to decode file {filepath} with available encodings."
     )
 
-def summarize(material):
-            # Summarize the course material to fit within a smaller token limit
-        summary_prompt = f"Summarize the following course material in a way that fits within 300 tokens:\n\n{material}"
-        summary_response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": summary_prompt}
-            ],
-            max_tokens=300
-        )
-        
-        summarized_material = summary_response.choices[0].message.content.strip()
-        return summarized_material
-
 #####################################################
 # Flashcards
 #####################################################
 
-def get_flashcards(text):
-    chunks = text.split('\n\n')
+@bp.route("/flashcards", methods=['GET'])
+def flashcards():  
+    upload_path = os.path.join(current_app.instance_path, 'flashcards', 'flashcards.json')
 
-    # Limit to the first 10 chunks
-    flashcard_limit = 10
-    flashcards = []
-    for chunk in chunks[:flashcard_limit]:
-        prompt = f"You are a STEM teacher, trying to explain the content with useful Flashcards. Create a flashcard out of the following content:\n\n{chunk}\n\nFlashcard:"
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=150
-        )
-        flashcards.append(response.choices[0].message.content.strip())
-
-    return flashcards
-
-@bp.route("/flashcards", methods=['GET', 'POST'])
-def flashcards():
-    flashcards_folder = os.path.join(current_app.instance_path, 'flashcards')
-    os.makedirs(flashcards_folder, exist_ok=True)
-    file_path = os.path.join(current_app.instance_path, 'texts', 'text.txt')  # Adjust the path to your TXT file
-    
-    if request.method == 'POST':
-        
-        file_path = os.path.join(current_app.instance_path, 'texts', 'text.txt')
-        text, used_encoding = read_file_with_multiple_encodings(file_path)
-        #flashcard_material = summarize(text)
-        flashcards = get_flashcards(text) or []
-        
-        upload_path = os.path.join(flashcards_folder, 'flashcards.json')
-        with open(upload_path, 'w', encoding='utf-8') as f:
-            json.dump(flashcards, f)
-        
-        return render_template("student/flashcards.html", flashcards=flashcards)
-    
-    # Handle GET request
-    upload_path = os.path.join(flashcards_folder, 'flashcards.json')
-    
-    # Load existing flashcards if needed
     if os.path.exists(upload_path):
         with open(upload_path, 'r', encoding='utf-8') as f:
             flashcards = json.load(f)
     else:
         flashcards = []
-    
+
     return render_template("student/flashcards.html", flashcards=flashcards)
-
-
 
 #####################################################
 # Login
@@ -160,7 +104,6 @@ def get_response(question):
         # Read the prompt_extension when needed
         file_path = os.path.join(current_app.instance_path, 'texts', 'text.txt')
         prompt_extension, used_encoding = read_file_with_multiple_encodings(file_path)
-        #summarized_material = summarize(prompt_extension)
 
         # Define the initial messages for the conversation, ensuring they are concise
         initial_messages = [

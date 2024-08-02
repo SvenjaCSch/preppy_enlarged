@@ -1,14 +1,22 @@
 {% extends 'base.html' %}
 
 {% block content %}
- 
-<form action = "/upload" method="post" enctype="multipart/form-data">
-    <label for="file"><b>Upload Course Material</b></label>
-    <input id="file" name="file" type="file" />
-    <button onclick="move()">Upload</button>
-    <div class="progress-bar">
-        <div id="progress"></div>
+<div class="main-content">
+    <div class="box">
+        <form action="{{ url_for('teacher.upload_file') }}" method="post" enctype="multipart/form-data">
+            <label for="file"><b>Upload Course Material</b></label>
+            <input id="file" name="file" type="file" required />
+            <button onclick="move()">Upload</button>
+            <div class="progress-bar">
+                <div id="progress"></div>
+            </div>
+    
+        </form>
+        <form action="{{ url_for('teacher.generate_flashcards') }}" method="post">
+            <button type="submit" class="generate-btn">Generate Flashcards</button>
+        </form>
     </div>
-</form>
+</div>
 <script src="{{ url_for('static', filename='js/upload.js') }}"></script>
 {% endblock %}
+

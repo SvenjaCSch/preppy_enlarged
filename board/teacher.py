@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 import os
 import PyPDF2
 from openai import OpenAI
-
+import json
 
 bp = Blueprint("teacher", __name__)
 
@@ -13,7 +13,6 @@ client = OpenAI(
 )
 
 def clear_text(text):
-    # Remove headers and footers if they are in the first and last 1000 characters
     text_lines = text.split('\n')
     text_lines = text_lines[10:-10]
     text = '\n'.join(text_lines)
@@ -24,21 +23,19 @@ def clear_text(text):
 
     return text
 
-
 def summarize(material):
-            # Summarize the course material to fit within a smaller token limit
-        summary_prompt = f"Point out the core concepts of following course material in a way that fits within 500 tokens:\n\n{material}."
-        summary_response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a assistant. Do not engage with the user."},
-                {"role": "user", "content": summary_prompt}
-            ],
-            max_tokens=300
-        )
-        
-        summarized_material = summary_response.choices[0].message.content.strip()
-        return summarized_material
+    summary_prompt = f"Point out the core concepts of following course material in a way that fits within 600 tokens:\n\n{material}."
+    summary_response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are an assistant."},
+            {"role": "user", "content": summary_prompt},
+        ],
+        max_tokens=600
+    )
+    
+    summarized_material = summary_response.choices[0].message.content.strip()
+    return summarized_material
 
 @bp.route('/teacher_landing')
 @login_required
@@ -52,7 +49,52 @@ def landing():
 def upload():
     return render_template('teacher/upload.html')
 
-@bp.route('/upload', methods=['GET', 'POST'])
+def get_flashcards(text):
+    chunks = text.split('\n\n') 
+    flashcard_limit = 10
+    flashcards = []
+
+    for chunk in chunks[:flashcard_limit]:
+        prompt = (
+            f"You are a STEM teacher. Create a flashcard from the following content:\n\n{chunk}\n\n"
+            "Your response should have the format:\n"
+            "Term: [Your term here]\n"
+            "Definition: [Your definition here]\n"
+            "Please do not include any numbers, labels, or extra text. Just give me the content as stated."
+        )
+        
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=150
+        )
+        card_content = response.choices[0].message.content.strip()
+        flashcards.append(card_content)
+
+    return flashcards
+
+
+@bp.route('/generate_flashcards', methods=['POST'])
+def generate_flashcards():
+    flashcards_folder = os.path.join(current_app.instance_path, 'flashcards')
+    os.makedirs(flashcards_folder, exist_ok=True)
+    file_path = os.path.join(current_app.instance_path, 'texts', 'text.txt')
+    
+    with open(file_path, 'r', encoding='utf-8') as f:
+        text = f.read()
+    
+    flashcards = get_flashcards(text) or []
+    
+    upload_path = os.path.join(flashcards_folder, 'flashcards.json')
+    with open(upload_path, 'w', encoding='utf-8') as f:
+        json.dump(flashcards, f)
+    
+    return render_template("teacher/upload.html", flashcards=flashcards)
+
+@bp.route('/upload_file', methods=['POST'])
 def upload_file():
     if request.method == 'POST':
         f = request.files['file']
@@ -66,12 +108,10 @@ def upload_file():
         upload_path = os.path.join(pdf_folder, secure_filename(f.filename))
         f.save(upload_path)
         
-        # Open the saved file for reading
         with open(upload_path, 'rb') as file:
             pdfreader = PyPDF2.PdfFileReader(file)
             num_pages = pdfreader.numPages
             
-            # Iterate through all pages and extract text
             text = ""
             for page_num in range(num_pages):
                 pageobj = pdfreader.getPage(page_num)
@@ -80,9 +120,9 @@ def upload_file():
             
             text_summa = summarize(text)
             
-            # Write the extracted text to a file
             text_path = os.path.join(text_folder, 'text.txt')
             with open(text_path, 'a', encoding='utf-8') as file1:
                 file1.write(text_summa)
         
-        return render_template('teacher/upload.html')
+        return redirect(url_for('teacher.upload'))
+    return render_template('teacher/upload.html')
