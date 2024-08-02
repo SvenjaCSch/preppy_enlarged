@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from openai import OpenAI
 import openai
 import os
+import json
 
 bp = Blueprint("student", __name__)
 
@@ -11,6 +12,10 @@ client = OpenAI(
 )
 
 history = []
+
+#####################################################
+# Upload
+#####################################################
 
 def read_file_with_multiple_encodings(filepath, encodings=['utf-8', 'ISO-8859-1', 'cp1252']):
     if not os.path.exists(filepath):
@@ -22,19 +27,13 @@ def read_file_with_multiple_encodings(filepath, encodings=['utf-8', 'ISO-8859-1'
             with open(filepath, 'r', encoding=encoding) as file:
                 text = file.read()
 
-                # Remove headers and footers if they are in the first and last 1000 characters
-                text_lines = text.split('\n')
-                text_lines = text_lines[10:-10]
-
-                # Combine back to text
-                text = '\n'.join(text_lines)
-
                 # Remove references section assuming it starts with 'References' or 'REFERENCES'
                 ref_index = text.lower().find('references')
                 if ref_index != -1:
                     text = text[:ref_index]
-
+            
                 return text.replace('\n', ' '), encoding
+            
         except (UnicodeDecodeError, FileNotFoundError) as e:
             print(f"Failed to read file {filepath} with encoding {encoding}: {e}")
             continue  # Try the next encoding
@@ -46,49 +45,33 @@ def read_file_with_multiple_encodings(filepath, encodings=['utf-8', 'ISO-8859-1'
         f"Failed to decode file {filepath} with available encodings."
     )
 
-# Function to extract text from a PDF (placeholder)
-def extract_text_from_pdf(pdf_path):
-    # Implement your PDF extraction logic here
-    extracted_text = "Sample text extracted from PDF."  # Replace with actual extracted text
-    return extracted_text
+def summarize(material):
+            # Summarize the course material to fit within a smaller token limit
+        summary_prompt = f"Summarize the following course material in a way that fits within 300 tokens:\n\n{material}"
+        summary_response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": summary_prompt}
+            ],
+            max_tokens=300
+        )
+        
+        summarized_material = summary_response.choices[0].message.content.strip()
+        return summarized_material
 
-@bp.route('/upload_pdf', methods=['POST'])
-@login_required
-def upload_pdf():
-    if 'pdf_file' not in request.files:
-        return redirect(url_for('student.landing'))
+#####################################################
+# Flashcards
+#####################################################
 
-    pdf_file = request.files['pdf_file']
-
-    if pdf_file.filename == '':
-        return redirect(url_for('student.landing'))
-
-    # Save the uploaded PDF to a specific location (e.g., instance/pdfs)
-    pdf_path = os.path.join(current_app.instance_path, 'pdfs', pdf_file.filename)
-    pdf_file.save(pdf_path)
-
-    # Extract text from the PDF
-    extracted_text = extract_text_from_pdf(pdf_path)
-
-    # Specify the path to the text file
-    file_path = os.path.join(current_app.instance_path, 'texts', 'text.txt')
-
-    # After extracting text from the PDF, make sure it's valid text
-    if extracted_text:  # Assuming extracted_text is the result from your PDF processing
-        with open(file_path, 'w', encoding='utf-8') as f:
-            f.write(extracted_text)
-        print("Extracted text written to:", file_path)
-    else:
-        print("No text was extracted from the PDF.")
-
-    return redirect(url_for('student.landing'))
-
-def generate_flashcards(text):
+def get_flashcards(text):
     chunks = text.split('\n\n')
-    
+
+    # Limit to the first 10 chunks
+    flashcard_limit = 10
     flashcards = []
-    for chunk in chunks:
-        prompt = f"Create a flashcard from the following text:\n\n{chunk}\n\nFlashcard:"
+    for chunk in chunks[:flashcard_limit]:
+        prompt = f"You are a STEM teacher, trying to explain the content with useful Flashcards. Create a flashcard out of the following content:\n\n{chunk}\n\nFlashcard:"
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
@@ -98,8 +81,45 @@ def generate_flashcards(text):
             max_tokens=150
         )
         flashcards.append(response.choices[0].message.content.strip())
-    
+
     return flashcards
+
+@bp.route("/flashcards", methods=['GET', 'POST'])
+def flashcards():
+    flashcards_folder = os.path.join(current_app.instance_path, 'flashcards')
+    os.makedirs(flashcards_folder, exist_ok=True)
+    file_path = os.path.join(current_app.instance_path, 'texts', 'text.txt')  # Adjust the path to your TXT file
+    
+    if request.method == 'POST':
+        
+        file_path = os.path.join(current_app.instance_path, 'texts', 'text.txt')
+        text, used_encoding = read_file_with_multiple_encodings(file_path)
+        #flashcard_material = summarize(text)
+        flashcards = get_flashcards(text) or []
+        
+        upload_path = os.path.join(flashcards_folder, 'flashcards.json')
+        with open(upload_path, 'w', encoding='utf-8') as f:
+            json.dump(flashcards, f)
+        
+        return render_template("student/flashcards.html", flashcards=flashcards)
+    
+    # Handle GET request
+    upload_path = os.path.join(flashcards_folder, 'flashcards.json')
+    
+    # Load existing flashcards if needed
+    if os.path.exists(upload_path):
+        with open(upload_path, 'r', encoding='utf-8') as f:
+            flashcards = json.load(f)
+    else:
+        flashcards = []
+    
+    return render_template("student/flashcards.html", flashcards=flashcards)
+
+
+
+#####################################################
+# Login
+#####################################################
 
 @bp.route('/student_landing')
 @login_required
@@ -107,6 +127,10 @@ def landing():
     if current_user.role != 'student':
         return redirect(url_for('auth.login'))
     return render_template("student/landing.html", name=current_user.name)
+
+#####################################################
+# Chatbot
+#####################################################
 
 @bp.route("/chatbot", methods=['GET', 'POST'])
 @login_required
@@ -130,30 +154,19 @@ def app_response():
     
     return jsonify({"history": history})
 
+
 def get_response(question):
     try:
         # Read the prompt_extension when needed
         file_path = os.path.join(current_app.instance_path, 'texts', 'text.txt')
         prompt_extension, used_encoding = read_file_with_multiple_encodings(file_path)
-
-        # Summarize the course material to fit within a smaller token limit
-        summary_prompt = f"Summarize the following course material in a way that fits within 300 tokens:\n\n{prompt_extension}"
-        summary_response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": summary_prompt}
-            ],
-            max_tokens=300
-        )
-        
-        summarized_material = summary_response.choices[0].message.content.strip()
+        #summarized_material = summarize(prompt_extension)
 
         # Define the initial messages for the conversation, ensuring they are concise
         initial_messages = [
             {
                 "role": "system",
-                "content": f"You are a STEM teacher. Explain concepts simply. This is the course material: {summarized_material}"
+                "content": f"You are a STEM teacher. Answer the question accuarately. Explain concepts behind in a simple way with easy examples. Your students are in the age between 12 and 15. This is the course material: {prompt_extension}"
             },
             {
                 "role": "user",
@@ -213,27 +226,3 @@ def get_response(question):
         print(f"OpenAI API error: {e}")
         return f"OpenAI API error: {e}"
 
-@bp.route("/flashcards", methods=['GET', 'POST'])
-def flashcards():
-    file_path = os.path.join(current_app.instance_path, 'texts', 'text.txt')  # Adjust the path to your TXT file
-    text = read_file_with_multiple_encodings(file_path)[0]
-
-    # Generate flashcards from the text
-    flashcards = generate_flashcards(text) or []  # Ensure flashcards is always a list
-
-    # Print the value of flashcards for debugging
-    print("Flashcards:", flashcards)  # Debugging line to see the contents of flashcards
-
-    # Render the template with the flashcards data
-    return render_template("student/flashcards.html", flashcards=flashcards)
-
-@bp.route("/flashcards", methods=['GET'])
-def flashcards_get():
-    file_path = os.path.join(current_app.instance_path, 'texts', 'text.txt')
-    text = read_file_with_multiple_encodings(file_path)[0]
-
-    # Generate flashcards from the text
-    flashcards = generate_flashcards(text) or []
-
-    # Render the template with the flashcards data
-    return render_template("student/flashcards.html", flashcards=flashcards)
