@@ -323,14 +323,17 @@ h3.title {
     border-radius: 10px;
     width: 100%;
     height: 100%;
+    justify-content: center;
 }
 
 .notification.is-danger {
-    background-color: #f14668;
+    background-color: #85172d;
     color: white;
     padding: 1rem;
     border-radius: 5px;
     margin-bottom: 1rem;
+    display: flex;
+    justify-content: center;
 }
 
 .field {
@@ -343,6 +346,8 @@ h3.title {
 
 .control {
     width: 100%;
+    display: flex;
+    justify-content: center;
 }
 
 .input {
@@ -355,6 +360,7 @@ h3.title {
 
 .input.is-large {
     font-size: 1.25rem;
+    width: 100%
 }
 
 .checkbox {
@@ -379,12 +385,15 @@ h3.title {
     cursor: pointer;
     margin-top: 1rem;
     flex: 1;
+    width: 100%;
+    
     
 }
 
 .button.is-block {
     display: block;
     width: 100%;
+    justify-content: center;
 }
 
 .button.is-info {

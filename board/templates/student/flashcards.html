@@ -5,11 +5,11 @@
     <h1>Flashcards</h1>
 
     <form action="{{ url_for('student.flashcards') }}" method="get">
-        <button type="submit" class="generate-btn">View Flashcards</button>
+        <button type="button" class="generate-btn" onclick="showCard(0)">View Flashcards</button>
     </form>
 
     <!-- Store flashcards data in a data attribute -->
-    <div id="flashcards" data-flashcards="{{ flashcards | tojson | safe }}" style="display:none;"></div>
+    <div id="flashcards" data-flashcards="{{ flashcards|tojson|safe }}" style="display:none;"></div>
 
     <div class="flashcard" id="flashcard">
         <div class="front">

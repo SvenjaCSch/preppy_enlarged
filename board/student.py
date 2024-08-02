@@ -56,10 +56,20 @@ def flashcards():
     if os.path.exists(upload_path):
         with open(upload_path, 'r', encoding='utf-8') as f:
             flashcards = json.load(f)
+
+        # This will not need replacing if you handle newlines correctly in the HTML
+        for i in range(len(flashcards)):
+            flashcards[i] = flashcards[i].replace('\n', '\\n')
+
+        # Use json.dumps here to properly format the flashcards data for HTML
+        
+        flashcards_json = json.dumps(flashcards).replace('"', '\\"')  
+        print("Flashcards JSON being sent:", flashcards_json)
+        return render_template("student/flashcards.html", flashcards=flashcards_json)  # pass the JSON string
     else:
         flashcards = []
 
-    return render_template("student/flashcards.html", flashcards=flashcards)
+    return render_template("student/flashcards.html", flashcards=json.dumps([]))  # return an empty JSON array if no flashcards
 
 #####################################################
 # Login
