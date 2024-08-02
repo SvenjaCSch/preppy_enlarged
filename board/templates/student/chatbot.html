@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!DOCTYPE html>
+<body>
+    <div class="chatbot-container">
+        <div class="chat-header">
+            <h2>Learning Assistant</h2>
+        </div>
+        <div class="chat-content">
+            {% for user_input, bot_response in message %}
+                <div class="chat-bubble user">
+                    <p>{{ user_input }}</p>
+                </div>
+                <div class="chat-bubble bot">
+                    <p>{{ bot_response }}</p>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="chat-input">
+            <form method="POST" action="/chatbot">
+                <input type="text" name="textbox" placeholder="Please type in your question">
+                <div class="chat-buttons">
+                    <button type="button" class="btn new">New</button>
+                    <button type="submit" class="btn submit">Send</button>
+                    <button type="button" class="btn help" onclick="openHelpPopup()">Help</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Help Popup -->
+    <div id="helpPopup" class="help_window" style="display:none">
+        <div class="help_top_menu">
+            <div class="title">Help Learning Assistant</div>
+        </div>
+        <div class="help_content">
+            <p>This is an AI generated Learning Assistant.</p>
+            <p>You can ask questions to enhance your knowledge and your learning experience.</p>  
+        </div>
+        <div class="help_bottom_menu">
+            <button class="btn new" onclick="closeHelpPopup()">Close</button>
+        </div>
+    </div>
+   <script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
+</body>
+</html>
+
+
+{% endblock %}

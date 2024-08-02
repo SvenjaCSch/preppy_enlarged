@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="landing-container">
+    <div class="landing-grid">
+        <a href="{{ url_for('teacher.upload') }}">
+        <div class="landing-card">
+            <h2>Upload</h2>
+        </div>
+    </a>
+        <div class="landing-card">
+            <h2>Dashboard</h2>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="landing-container">
+    <div class="landing-grid">
+        <div class="landing-card">
+            <h2>Mock Exams</h2>
+        </div>
+        <a href="{{ url_for('student.flashcards') }}">
+        <div class="landing-card">
+            <h2>Flashcards</h2>
+        </div></a>
+        <a href="{{ url_for('student.chatbot') }}"> 
+        <div class="landing-card">
+            <h2>Learning Assistant</h2>
+        </div></a>
+        <div class="landing-card">
+            <h2>Course Materials</h2>
+        </div>
+    </div>
+</div>
+{% endblock %}

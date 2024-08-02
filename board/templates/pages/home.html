@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h2>{% block title %}Home{% endblock title %}</h2>
+{% endblock header %}
+
+{% block content %}
+<div class="main-content">
+    <div class="option student">
+        <h2>Student?</h2>
+        <p>Start preparing <span class="highlight">now</span></p>
+        <form action="{{ url_for('auth.signup') }}" method="GET">
+            <input type="hidden" name="role" value="student">
+            <button type="submit">Signup as Student</button>
+        </form>
+        <button><a href="{{ url_for('auth.login')}}">Login</a></button>
+    </div>
+    <div class="option teacher">
+        <h2>Teacher?</h2>
+        <p>Upload your content <span class="highlight">now</span></p>
+        <form action="{{ url_for('auth.signup') }}" method="GET">
+            <input type="hidden" name="role" value="teacher">
+            <button type="submit">Signup as Teacher</button>
+        </form>
+        <button><a href="{{ url_for('auth.login')}}">Login</a></button>
+    </div>
+</div>
+{% endblock content %}
