@@ -58,8 +58,7 @@ def get_flashcards(text):
         prompt = (
             f"You are a STEM teacher. Create a flashcard from the following content:\n\n{chunk}\n\n"
             "Your response should have the format:\n"
-            "Term: [Your term here]\n"
-            "Definition: [Your definition here]\n"
+            "{'Term': '[Your term here]','Definition': '[Your definition here]'},\n"
             "Please do not include any numbers, labels, or extra text. Just give me the content as stated."
         )
         
@@ -76,7 +75,6 @@ def get_flashcards(text):
 
     return flashcards
 
-
 @bp.route('/generate_flashcards', methods=['POST'])
 def generate_flashcards():
     flashcards_folder = os.path.join(current_app.instance_path, 'flashcards')
@@ -88,11 +86,21 @@ def generate_flashcards():
     
     flashcards = get_flashcards(text) or []
     
+    for i in range(len(flashcards)):
+        original_flashcard = flashcards[i]
+        modified_flashcard = (
+            original_flashcard
+            .replace('\n', '')       # Replace newline with escaped newline
+            .replace('"{', '{') 
+            .replace('"', '\\"')        # Escape double quotes
+        )
+        flashcards[i] = modified_flashcard
+
     upload_path = os.path.join(flashcards_folder, 'flashcards.json')
     with open(upload_path, 'w', encoding='utf-8') as f:
-        json.dump(flashcards, f)
-    
+        json.dump(flashcards, f, indent=4)    
     return render_template("teacher/upload.html", flashcards=flashcards)
+
 
 @bp.route('/upload_file', methods=['POST'])
 def upload_file():

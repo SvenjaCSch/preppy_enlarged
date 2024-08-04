@@ -4,6 +4,7 @@ let flashcards = [];
 let currentCard = 0;
 
 window.showCard = function(index) {
+    console.log("Showing card at index:", index);
     if (flashcards.length > 0) {
         // Ensure index is within bounds
         if (index < 0 || index >= flashcards.length) {
@@ -18,29 +19,29 @@ window.showCard = function(index) {
     }
 };
 
-document.addEventListener("DOMContentLoaded", function() {
-    const flashcardsData = document.getElementById('flashcards').getAttribute('data-flashcards');
-    console.log("Raw flashcards data:", flashcardsData);
-    console.log("Raw flashcards data length:", flashcardsData.length);
+document.addEventListener("DOMContentLoaded", function () {
+    const flashcardsElement = document.getElementById('flashcards');
+    const flashcardsData = flashcardsElement.getAttribute('data-flashcards');
+    console.log(flashcardsElement);
+    console.log(flashcardsData);
 
-    if (!flashcardsData) {
-        console.error("No flashcards data available.");
-        return;
-    }
+    if (flashcardsData) {
+        try {
+            const flashcards = JSON.parse(flashcardsData);
 
-    try {
-        // Parse the data here
-        flashcards = JSON.parse(flashcardsData);
-        console.log("Parsed flashcards data:", flashcards);
-    } catch (error) {
-        console.error("Error parsing JSON:", error);
-        return;
-    }
+            // Now you can use the flashcards array
+            console.log(flashcards); // Check the parsed output
 
-    if (flashcards.length > 0) {
-        showCard(currentCard);
+            // Example: Display the flashcards
+            flashcards.forEach(card => {
+                // Your logic to display each flashcard
+                console.log(card);
+            });
+        } catch (error) {
+            console.error("Error parsing flashcards JSON:", error);
+        }
     } else {
-        console.warn("No flashcards available.");
+        console.warn("No flashcards data available.");
     }
 });
 

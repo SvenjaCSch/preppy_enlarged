@@ -50,26 +50,27 @@ def read_file_with_multiple_encodings(filepath, encodings=['utf-8', 'ISO-8859-1'
 #####################################################
 
 @bp.route("/flashcards", methods=['GET'])
-def flashcards():  
+def flashcards():
+    print("start loading flashcards.")
     upload_path = os.path.join(current_app.instance_path, 'flashcards', 'flashcards.json')
 
     if os.path.exists(upload_path):
-        with open(upload_path, 'r', encoding='utf-8') as f:
-            flashcards = json.load(f)
-
-        # This will not need replacing if you handle newlines correctly in the HTML
-        for i in range(len(flashcards)):
-            flashcards[i] = flashcards[i].replace('\n', '\\n')
-
-        # Use json.dumps here to properly format the flashcards data for HTML
-        
-        flashcards_json = json.dumps(flashcards).replace('"', '\\"')  
-        print("Flashcards JSON being sent:", flashcards_json)
-        return render_template("student/flashcards.html", flashcards=flashcards_json)  # pass the JSON string
+        try:
+            with open(upload_path, 'r', encoding='utf-8') as f:
+                flashcards = json.load(f)
+                print("Flashcards loaded")
+            flashcards_json = json.dumps(flashcards, ensure_ascii=False)  # Ensure proper JSON formatting
+            print("Ensure proper JSON formatting")
+        except json.JSONDecodeError as e:
+            flashcards_json = json.dumps([])  # Return an empty JSON array if there's an error
+            print("# Return an empty JSON array if there's an error")
+            return render_template("student/flashcards.html", flashcards=flashcards_json)
+        print(f"Return {flashcards}")
+        return render_template("student/flashcards.html", flashcards=flashcards_json)
     else:
-        flashcards = []
-
-    return render_template("student/flashcards.html", flashcards=json.dumps([]))  # return an empty JSON array if no flashcards
+        flashcards_json = json.dumps([])  # Return an empty JSON array if no flashcards
+        print("# Return an empty JSON array if no flashcards")
+        return render_template("student/flashcards.html", flashcards=flashcards_json)
 
 #####################################################
 # Login
