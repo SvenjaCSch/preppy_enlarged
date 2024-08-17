@@ -1,8 +1,8 @@
 var i = 0;
-function move() {
+function move(prog) {
   if (i == 0) {
     i = 1;
-    var elem = document.getElementById("progress");
+    var elem = document.getElementById(prog);
     var width = 10;
     var id = setInterval(frame, 10);
     function frame() {
