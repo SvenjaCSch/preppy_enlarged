@@ -83,6 +83,7 @@ def translate_flashcard():
         ],
         max_tokens=150
     )
+    
 
     # Extract the translated term and definition from the response
     translated = response.choices[0].message.content
