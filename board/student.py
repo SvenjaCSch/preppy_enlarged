@@ -202,3 +202,11 @@ def get_response(question):
         print(f"OpenAI API error: {e}")
         return f"OpenAI API error: {e}"
 
+#####################################################
+# Profile
+#####################################################
+
+@bp.route('/student_profile')
+@login_required
+def profile():
+    return render_template('student/profile.html', name=current_user.name, email=current_user.email, school=current_user.school, surname=current_user.surname)

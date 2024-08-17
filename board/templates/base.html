@@ -11,6 +11,20 @@
 <body>
     <header>
         <div class="header-content">
+          {% if current_user.role == "student" %}
+          <div class="myBtnprofile">
+              <a href="{{ url_for('student.profile')}}">
+                  <img src="{{ url_for('static', filename='images/user.png') }}" alt="student" class="icon">
+              </a>
+          </div>
+          {% endif %}
+          {% if current_user.role == "teacher" %}
+          <div class="myBtnprofile">
+              <a href="{{ url_for('teacher.profile')}}">
+                  <img src="{{ url_for('static', filename='images/user.png') }}" alt="teacher" class="icon">
+              </a>
+          </div>
+          {% endif %}
           {% if not current_user.is_authenticated %}
           <a href="{{ url_for('pages.home') }}">
             <img src="{{ url_for('static', filename='images/logo.png') }}"alt="Graduation Cap Icon" class="graduation-icon">
