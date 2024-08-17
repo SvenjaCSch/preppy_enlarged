@@ -4,6 +4,7 @@ from openai import OpenAI
 import openai
 import os
 import json
+from .models import Flashcard
 
 bp = Blueprint("student", __name__)
 
@@ -49,28 +50,17 @@ def read_file_with_multiple_encodings(filepath, encodings=['utf-8', 'ISO-8859-1'
 # Flashcards
 #####################################################
 
-@bp.route("/flashcards", methods=['GET'])
+    
+@bp.route("/flashcards")
 def flashcards():
-    print("start loading flashcards.")
-    upload_path = os.path.join(current_app.instance_path, 'flashcards', 'flashcards.json')
+    # Query the flashcards from the database
+    flashcards = Flashcard.query.all()
 
-    if os.path.exists(upload_path):
-        try:
-            with open(upload_path, 'r', encoding='utf-8') as f:
-                flashcards = json.load(f)
-                print("Flashcards loaded")
-            flashcards_json = json.dumps(flashcards, ensure_ascii=False)  # Ensure proper JSON formatting
-            print("Ensure proper JSON formatting")
-        except json.JSONDecodeError as e:
-            flashcards_json = json.dumps([])  # Return an empty JSON array if there's an error
-            print("# Return an empty JSON array if there's an error")
-            return render_template("student/flashcards.html", flashcards=flashcards_json)
-        print(f"Return {flashcards}")
-        return render_template("student/flashcards.html", flashcards=flashcards_json)
-    else:
-        flashcards_json = json.dumps([])  # Return an empty JSON array if no flashcards
-        print("# Return an empty JSON array if no flashcards")
-        return render_template("student/flashcards.html", flashcards=flashcards_json)
+    # Convert the flashcards to a list of dictionaries
+    flashcards_data = [{"Term": fc.term, "Definition": fc.definition} for fc in flashcards]
+
+    # Pass the flashcards data to the template
+    return render_template('student/flashcards.html', flashcards=flashcards_data)
 
 #####################################################
 # Login

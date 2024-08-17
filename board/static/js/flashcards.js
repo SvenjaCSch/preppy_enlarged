@@ -3,6 +3,7 @@ console.log("Flashcard script loaded");
 let flashcards = [];
 let currentCard = 0;
 
+// Function to display a flashcard
 window.showCard = function(index) {
     console.log("Showing card at index:", index);
     if (flashcards.length > 0) {
@@ -12,47 +13,40 @@ window.showCard = function(index) {
             return;
         }
 
-        const card = flashcards[index].split(/\nDefinition:\s*/);
-        document.getElementById('question').innerText = card[0].replace('Term: ', '').trim();
-        document.getElementById('answer').innerText = card[1] ? card[1].trim() : "No answer available"; 
+        // Get the current card
+        const card = flashcards[index];
+        // Display the term (question) and definition (answer)
+        document.getElementById('question').innerText = card.Term.trim();
+        document.getElementById('answer').innerText = card.Definition.trim() || "No answer available";
+        // Ensure the card is showing the front side
         document.querySelector('.flashcard').classList.remove('flipped');
     }
 };
 
+// Function to flip the flashcard
+window.flipCard = function() {
+    document.querySelector('.flashcard').classList.toggle('flipped');
+};
+
+// Function to show the next flashcard
+window.nextCard = function() {
+    if (flashcards.length > 0) {
+        // Increment the current card index, wrap around if necessary
+        currentCard = (currentCard + 1) % flashcards.length;
+        showCard(currentCard);
+    }
+};
+
+// Initialize the flashcards when the DOM is fully loaded
 document.addEventListener("DOMContentLoaded", function () {
+    // Retrieve the flashcards data from the data-flashcards attribute
     const flashcardsElement = document.getElementById('flashcards');
-    const flashcardsData = flashcardsElement.getAttribute('data-flashcards');
-    console.log(flashcardsElement);
-    console.log(flashcardsData);
+    flashcards = JSON.parse(flashcardsElement.dataset.flashcards);
 
-    if (flashcardsData) {
-        try {
-            const flashcards = JSON.parse(flashcardsData);
-
-            // Now you can use the flashcards array
-            console.log(flashcards); // Check the parsed output
-
-            // Example: Display the flashcards
-            flashcards.forEach(card => {
-                // Your logic to display each flashcard
-                console.log(card);
-            });
-        } catch (error) {
-            console.error("Error parsing flashcards JSON:", error);
-        }
+    // Check if there are any flashcards, and display the first one if there are
+    if (flashcards && flashcards.length > 0) {
+        showCard(currentCard);
     } else {
         console.warn("No flashcards data available.");
     }
 });
-
-// Define flipCard and nextCard in the outer scope
-window.flipCard = function() {
-    document.querySelector('.flashcard').classList.toggle('flipped'); 
-};
-
-window.nextCard = function() {
-    if (flashcards.length > 0) {
-        currentCard = (currentCard + 1) % flashcards.length; 
-        showCard(currentCard); 
-    }
-};
