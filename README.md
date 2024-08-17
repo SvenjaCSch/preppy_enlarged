@@ -26,14 +26,6 @@ Get all the necessary requirements:
 ```bash
 pip install -r requirements.txt
 ```
-### Database
-Next you have to set up the database. For **Windows** use:
-```bash
-set FLASK_APP=run.py
-$env:FLASK_APP = "run.py"
-flask init-db
-```
-After that, the database should be set up.
 ### Environment
 As for the environment, create a new fine called **.env**. This file should contain the following information:
 ```bash
@@ -46,6 +38,15 @@ SECURITY_PASSWORD_SALT = "YOUR_SECURITY_PASSWORD_SALT" #random key with characte
 BYTES = 749000
 FOLDER = "board\static\pdfs"
 ```
+### Database
+Next you have to set up the database. For **Windows** use:
+```bash
+set FLASK_APP=run.py
+$env:FLASK_APP = "run.py"
+flask init-db
+```
+After that, the database should be set up.
+
 Now you are all set up! 
 ### Running the Project
 To start the website, use

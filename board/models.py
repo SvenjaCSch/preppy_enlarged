@@ -15,3 +15,10 @@ class Flashcard(db.Model, UserMixin):
     term = db.Column(db.String(100))
     definition = db.Column(db.String(1000))
     course = db.Column(db.String(100))
+
+class Course(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    course = db.Column(db.String(100))
+    course_number = db.Column(db.String(20))
+    subject = db.Column(db.String(100))
+    teacher = db.Column(db.String(100))

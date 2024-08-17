@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>README.md</title>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+    
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+html,footer,header{
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Custom MD PDF CSS
+ */
+html,footer,header{
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+
+ }
+body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+<link rel="stylesheet" href="file:///r%3A/2.Travail/1.Enseignement/Cours/_1.Outils/2.Developpement/1.SCSS/main.css" type="text/css"><link rel="stylesheet" href="file:///d%3A/rdaros/Cours/_1.Outils/2.Developpement/1.SCSS/main.css" type="text/css">
+</head>
+
+<body>
+    <h1 id="preppy">Preppy</h1>
+<p>An AI driven exam preparation tool for students in the age between 13-16. Teacher can upload their material. The AI creates flashcards, a mockup exam and gives help as a chatbot. The Tool is webbased.</p>
+<h2 id="installation-guide">Installation guide</h2>
+<p>This repository was created under python 3.12.4.</p>
+<h3 id="python-installation">Python installation</h3>
+<p>Ensure Python 3.12.4 is installed on your system. For Ubuntu:</p>
+<pre class="hljs"><code><div>sudo apt install python3.12.4
+</div></code></pre>
+<p>For MacOS:</p>
+<pre class="hljs"><code><div>brew install python@3.12.4
+</div></code></pre>
+<p>I myself used Windows and Visual Studio Code to install python. You can download VSC here:</p>
+<pre class="hljs"><code><div>https://code.visualstudio.com/download
+</div></code></pre>
+<p>I also installed the extensions for SQLite Viewer and SQLite by alexcuzz in VSC.</p>
+<h3 id="requirements">Requirements</h3>
+<p>Make sure you clone the repository properly. After that create a virtual environment with</p>
+<pre class="hljs"><code><div>python -m venv venv
+</div></code></pre>
+<p>Get all the necessary requirements:</p>
+<pre class="hljs"><code><div>pip install -r requirements.txt
+</div></code></pre>
+<h3 id="environment">Environment</h3>
+<p>As for the environment, create a new fine called <strong>.env</strong>. This file should contain the following information:</p>
+<pre class="hljs"><code><div>APP=<span class="hljs-string">"run.py"</span>
+ENVIRONMENT=<span class="hljs-string">"Development"</span>
+FLASK_SECRET_KEY=<span class="hljs-string">"YOUR_FLASK_SECRET_KEY"</span> <span class="hljs-comment">#random key with characters and numbers</span>
+FLASK_SQLALCHEMY_DATABASE_URI=<span class="hljs-string">"sqlite:///user.sqlite"</span>
+OPENAI=<span class="hljs-string">"YOUR_OPENAI_API_KEY"</span> <span class="hljs-comment">#for that you have to create an own API. Please check the website of Openai for that</span>
+SECURITY_PASSWORD_SALT = <span class="hljs-string">"YOUR_SECURITY_PASSWORD_SALT"</span> <span class="hljs-comment">#random key with characters and numbers</span>
+BYTES = 749000
+FOLDER = <span class="hljs-string">"board\static\pdfs"</span>
+</div></code></pre>
+<h3 id="database">Database</h3>
+<p>Next you have to set up the database. For <strong>Windows</strong> use:</p>
+<pre class="hljs"><code><div><span class="hljs-built_in">set</span> FLASK_APP=run.py
+<span class="hljs-variable">$env</span>:FLASK_APP = <span class="hljs-string">"run.py"</span>
+flask init-db
+</div></code></pre>
+<p>After that, the database should be set up.</p>
+<p>Now you are all set up!</p>
+<h3 id="running-the-project">Running the Project</h3>
+<p>To start the website, use</p>
+<pre class="hljs"><code><div>python run.py
+</div></code></pre>
+<p>You can now find the website under http://127.0.0.1:5000. Have fun!</p>
+<h2 id="introduction">Introduction</h2>
+<p>This tool will help teachers and students within the exam preparation. I will exlain the advatages and usage of this toll as well as the fuctionallity.</p>
+<h3 id="motivation">Motivation</h3>
+<p>We are in a situation where es lack of a sufficient amount of teachers while the teachers not having enough time for preparing the classes. This tool gives several advantages for both, students and teachers.</p>
+<h4 id="advantages-for-teachers">Advantages for teachers</h4>
+<p>The teacher don't need to create specific exam preparation files. The slides from the course are enough. The teacher gets a anonymous overview of the understanding of the students.</p>
+<h4 id="advantages-for-students">Advantages for students</h4>
+<p>The students can use the tools to prepare for their exam with spefic content, without creating own flashcards. They can talk to a learning assitant at home, when there is no teacher around.</p>
+<h3 id="comparision-to-other-ai-tools">Comparision to other AI Tools</h3>
+<p>There are several webtools, that help the students to learn with flashcards and further material.</p>
+<h4 id="quizlet">Quizlet</h4>
+<p>Quizlet is an online tool for students to create flashcards to learn the course material. Here the students have to create the flashcards by themself. Our model creates the flashcards according to the uploaded material from the teacher automatically.</p>
+<h4 id="note">Note</h4>
+<p>Note is an online tool where students can create pages containing informations about the course mterial, time schedules and grading systems. The students has to fill in the information by themself.</p>
+<h2 id="functions">Functions</h2>
+<h4 id="teachers-perspective">teachers perspective</h4>
+<p>The teacher can create a new class and upload course material which is being used by the AI to create flashcards and a mockup exam. The uploaded material is the basis of the learning asisstent.</p>
+<h4 id="students-perspective">students perspective</h4>
+<p>The student can look into the exam preparation via class code that is given by the teacher. Then they have access to automatically designed flashcards, the raw course material, a automatically created mockup exam and a learning assitent, that helps the student with further questions.</p>
+<h2 id="design">Design</h2>
+<p>The Design of the application was implemented in Figma by Veronika Smilga, Kimberly Sharp and me during the course LLM in education in the university of Tuebingen during the summer semester 2024. Yin-Ying Li was creating the Flowchart based on the Figma Design.</p>
+<h3 id="design-on-figma">Design on Figma</h3>
+<p>The figma prototype can be found here: https://www.figma.com/proto/1VhbgqEpKvuvH2E6JLZWm0/GradeAI-Website?node-id=8-2&amp;t=gnWKger8cISlvrYW-0&amp;scaling=scale-down&amp;content-scaling=fixed&amp;page-id=0%3A1&amp;starting-point-node-id=8%3A2<br>
+The prototype includes following pages:</p>
+<ul>
+<li>main</li>
+<li>about</li>
+<li>teachers pages
+<ul>
+<li>login</li>
+<li>signup</li>
+<li>register</li>
+<li>profile</li>
+<li>landing page</li>
+<li>course material</li>
+<li>uploading page</li>
+<li>evaluation page</li>
+</ul>
+</li>
+<li>students pages
+<ul>
+<li>login</li>
+<li>signup</li>
+<li>register</li>
+<li>profile</li>
+<li>landing page</li>
+<li>course material</li>
+<li>mockup exam</li>
+<li>mockup evaluation</li>
+<li>learning assistent</li>
+<li>flashcards</li>
+</ul>
+</li>
+</ul>
+<p>The Figma prototype was created by Kimberly Sharp, Veronika Smilga and me. It show the bases for the Flask website of this Github page.</p>
+<h3 id="implementation-function-on-flask">Implementation function on Flask</h3>
+<p>So far the focus of the first draft is to implement a web-chatbot, that can be accessed for the students, when they log in. Therefore the first implemented pages are the following: main, login, signup, students landingpage and chatbot page. Furthermore a flashcard page, the teachers landingpage and the upload page as well as an about page is installed.</p>
+<p>The login and signup works via sqlite. The main programming language is python. For the web application, flask is used, implementating both html and css.</p>
+<p>For the login it is important that the student can signup as student and the teacher as teacher. It is not aloud to login as teacher when you are actually a student and vice versa. This is handeled via role placing in the signup-page. Therefore the signup has to be on the main page and not the login page, which differs from the initial mockup in Figma.</p>
+<p>For the chatbot the first idea was to use llama 3 with ollama so the server is locally. This can increase the privacy of the application. Furthermore Llama can be used without payment. Unfurtunatelly the fuctionallity was to slow.</p>
+<p>Next idea was to use llama 2 with a huggingface finetuned model. Nonetheless the kernel crashed.</p>
+<p>Now I am using a openai API with the GPT-3.5.turbo model for the chatbot, the summarization of the uploaded data and the flashcard creation.</p>
+<ul>
+<li><input type="checkbox" id="checkbox0" checked="true"><label for="checkbox0">main</label></li>
+<li><input type="checkbox" id="checkbox1" checked="true"><label for="checkbox1">about</label></li>
+<li><input type="checkbox" id="checkbox2" checked="true"><label for="checkbox2">teachers pages</label>
+<ul>
+<li><input type="checkbox" id="checkbox3" checked="true"><label for="checkbox3">login</label></li>
+<li><input type="checkbox" id="checkbox4" checked="true"><label for="checkbox4">signup</label></li>
+<li><input type="checkbox" id="checkbox5"><label for="checkbox5">profile</label></li>
+<li><input type="checkbox" id="checkbox6" checked="true"><label for="checkbox6">landing page</label></li>
+<li><input type="checkbox" id="checkbox7"><label for="checkbox7">course material</label></li>
+<li><input type="checkbox" id="checkbox8" checked="true"><label for="checkbox8">uploading page</label></li>
+<li><input type="checkbox" id="checkbox9"><label for="checkbox9">evaluation page</label></li>
+</ul>
+</li>
+<li><input type="checkbox" id="checkbox10" checked="true"><label for="checkbox10">students pages</label>
+<ul>
+<li><input type="checkbox" id="checkbox11" checked="true"><label for="checkbox11">login</label></li>
+<li><input type="checkbox" id="checkbox12" checked="true"><label for="checkbox12">signup</label></li>
+<li><input type="checkbox" id="checkbox13" checked="true"><label for="checkbox13">profile</label></li>
+<li><input type="checkbox" id="checkbox14" checked="true"><label for="checkbox14">landing page</label></li>
+<li><input type="checkbox" id="checkbox15"><label for="checkbox15">course material</label></li>
+<li><input type="checkbox" id="checkbox16"><label for="checkbox16">mockup exam</label></li>
+<li><input type="checkbox" id="checkbox17"><label for="checkbox17">mockup evaluation</label></li>
+<li><input type="checkbox" id="checkbox18" checked="true"><label for="checkbox18">learning assistent</label></li>
+<li><input type="checkbox" id="checkbox19"><label for="checkbox19">flashcards</label></li>
+</ul>
+</li>
+</ul>
+<p>The folder are structured as showed:<br>
+📦board</p>
+<ul>
+<li>┣ 📂static</li>
+<li>┃ ┣ 📂css</li>
+<li>┃ ┃ ┗ 📜styles.css</li>
+<li>┃ ┣ 📂images</li>
+<li>┃ ┃ ┣ 📜arrow-circle-left.png</li>
+<li>┃ ┃ ┣ 📜arrow-circle-up.png</li>
+<li>┃ ┃ ┣ 📜Background_header.png</li>
+<li>┃ ┃ ┣ 📜Backimage.png</li>
+<li>┃ ┃ ┣ 📜favicon-16x16.png</li>
+<li>┃ ┃ ┣ 📜house-chimney.png</li>
+<li>┃ ┃ ┣ 📜icons8-logout-50.png</li>
+<li>┃ ┃ ┣ 📜Login Student.png</li>
+<li>┃ ┃ ┣ 📜Logo.png</li>
+<li>┃ ┃ ┣ 📜Main Page.png</li>
+<li>┃ ┃ ┣ 📜Students Flashcards.png</li>
+<li>┃ ┃ ┗ 📜Students Landing Page.png</li>
+<li>┃ ┣ 📂js</li>
+<li>┃ ┃ ┣ 📜base.js</li>
+<li>┃ ┃ ┣ 📜chatbot.js</li>
+<li>┃ ┃ ┣ 📜flashcards.js</li>
+<li>┃ ┃ ┗ 📜upload.js</li>
+<li>┣ 📂templates</li>
+<li>┃ ┣ 📂auth</li>
+<li>┃ ┃ ┣ 📜index.html</li>
+<li>┃ ┃ ┣ 📜login.html</li>
+<li>┃ ┃ ┗ 📜signup.html</li>
+<li>┃ ┣ 📂errors</li>
+<li>┃ ┃ ┗ 📜404.html</li>
+<li>┃ ┣ 📂pages</li>
+<li>┃ ┃ ┣ 📜about.html</li>
+<li>┃ ┃ ┣ 📜home.html</li>
+<li>┃ ┃ ┗ 📜profile.html</li>
+<li>┃ ┣ 📂student</li>
+<li>┃ ┃ ┣ 📜chatbot.html</li>
+<li>┃ ┃ ┣ 📜flashcards.html</li>
+<li>┃ ┃ ┗ 📜landing.html</li>
+<li>┃ ┣ 📂teacher</li>
+<li>┃ ┃ ┣ 📜landing.html</li>
+<li>┃ ┃ ┗ 📜upload.html</li>
+<li>┃ ┣ 📜base.html</li>
+<li>┣ 📜auth.py</li>
+<li>┣ 📜database.py</li>
+<li>┣ 📜errors.py</li>
+<li>┣ 📜models.py</li>
+<li>┣ 📜pages.py</li>
+<li>┣ 📜schema.sql</li>
+<li>┣ 📜student.py</li>
+<li>┣ 📜teacher.py</li>
+<li>┗ 📜__init__.py</li>
+<li>┣ 📜.env</li>
+<li>┣ 📜.gitignore</li>
+<li>┣ 📜README.md</li>
+<li>┣ 📜requirements.txt</li>
+<li>┗ 📜run.py</li>
+</ul>
+<h2 id="limitations">Limitations</h2>
+<p>The limit of tokens is quite small. Therefore the uploaded data has to be summarized strongly. A better way to handle that is the RAG LLM which is not used here because of the extensive use of GPU that I could not provide.</p>
+<h2 id="future-work">Future Work</h2>
+<p>For the future work, the rest of the Figma Model should be created. This includes the Mockup exam als well as the evaluation for the teacher and the students. Furthermore the profile editing and the coruse material should be created for both student and teacher.</p>
+<p>Besides that, the course system has to be installed. students should only get access to there courses. So they should get a second login with the classcode, they want and the opportunity to change the course.</p>
+<p>Lastely in future work RAG LLM should be considered because of the big amount of special data that needs to be passed through.</p>
+<h2 id="bibliography">Bibliography</h2>
+<ul>
+<li>https://medium.com/@AlexanderObregon/how-to-build-a-simple-chatbot-with-python-4ce0742546a1</li>
+<li>https://pythonspot.com/login-authentication-with-flask/</li>
+<li>https://realpython.com/flask-project/</li>
+<li>https://www.digitalocean.com/community/tutorials/how-to-add-authentication-to-your-app-with-flask-login</li>
+<li>https://medium.com/@abed63/flask-application-with-openai-chatgpt-integration-tutorial-958588ac6bdf</li>
+<li>https://pythonbasics.org/flask-upload-file/</li>
+<li>ChatGPT Use:
+<ul>
+<li>creating the HTML and CSS componentsfrom the Figma input (manually finegraded)</li>
+<li>flashcards python and javascript (additioan lpart. The focus of the paper is the chatbot)</li>
+<li>chatbot error handeling</li>
+</ul>
+</li>
+</ul>
+
+</body>
+
+</html>
