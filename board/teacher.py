@@ -38,6 +38,7 @@ def summarize(material):
         max_tokens=600
     )
     
+    
     summarized_material = summary_response.choices[0].message.content.strip()
     return summarized_material
 
