@@ -16,8 +16,6 @@ def login_post():
     password = request.form.get('password')
     remember = request.form.get('remember', 'false').lower() == 'true'
 
-    #flash(f"Login attempt for email: {email}")
-
     # Fetch the user based on the email
     user = User.query.filter_by(email=email).first()
 
@@ -35,10 +33,6 @@ def login_post():
 
     # Log the user in
     login_user(user, remember=remember)
-    #flash(f"User {email} logged in successfully.")
-
-    # Debugging: Check user role
-    flash(f"User role: {user.role}")  # This will display the user role
 
     # Ensure role is processed correctly
     user_role = user.role.strip().lower()

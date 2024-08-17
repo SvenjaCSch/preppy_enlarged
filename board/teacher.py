@@ -5,15 +5,16 @@ import os
 import PyPDF2
 from openai import OpenAI
 import json
+import sqlite3
+from .models import Flashcard
+from . import db
+
 
 bp = Blueprint("teacher", __name__)
 
 client = OpenAI(
     api_key=os.getenv("OPENAI"),
 )
-
-# print("OPEN AI key")
-# print(os.getenv("OPENAI"))
 
 def clear_text(text):
     text_lines = text.split('\n')
@@ -55,7 +56,6 @@ def upload():
 def get_flashcards(text):
     chunks = text.split('\n\n') 
     flashcard_limit = 10
-    flashcards = []
 
     prompt = (
         f'You are a STEM teacher. Create exactly {flashcard_limit} flashcards from the following content:\n\n{chunks}\n\n'
@@ -66,15 +66,6 @@ def get_flashcards(text):
         '''
     )
 
-#   for chunk in chunks[:flashcard_limit]:
-#       prompt = ( 
-#            f'You are a STEM teacher. Create exactly one flashcards from the following content:\n\n{chunk}\n\n'
-#            '''
-#            Your response should have this format:\n
-#            {"Term": "[Your term here]", "Definition": "[Your definition here]"}
-#            Please do not include any numbers, labels, or extra text. Just give me the content as stated.
-#            '''
-#        )
         
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
@@ -85,9 +76,20 @@ def get_flashcards(text):
         max_tokens=1500
     )
     card_content = response.choices[0].message.content.strip()
-    #flashcards.append(card_content)
-    # return flashcards
     return card_content
+
+def make_database():
+    traffic = json.load(open('instance/flashcards/flashcards.json'))
+    columns = ['Term', 'Definition']
+
+    for row in traffic:
+        keys= tuple(row[c] for c in columns)
+        flashcard = Flashcard.query.filter_by(term=keys[0]).first()
+        # Check if flashcard exists
+        if not flashcard:
+            new_flashcard = Flashcard(term=keys[0], definition=keys[1] )
+            db.session.add(new_flashcard)
+            db.session.commit() 
 
 
 @bp.route('/generate_flashcards', methods=['POST'])
@@ -96,25 +98,17 @@ def generate_flashcards():
     os.makedirs(flashcards_folder, exist_ok=True)
     file_path = os.path.join(current_app.instance_path, 'texts', 'text.txt')
     
+
     with open(file_path, 'r', encoding='utf-8') as f:
         text = f.read()
     
     flashcards = get_flashcards(text) or []
-    
-    # for i in range(len(flashcards)):
-    #      original_flashcard = flashcards[i]
-    #      modified_flashcard = (
-    #          original_flashcard
-    #          .replace('\n', '')       # Replace newline with escaped newline
-    #          .replace('"', '\\"')        # Escape double quotes
-    #          .replace('\"', '"')
-    #     )
-    #      flashcards[i] = modified_flashcard
 
     upload_path = os.path.join(flashcards_folder, 'flashcards.json')
     flashcard_dict = json.loads(flashcards.replace('\n', ''))
     with open(upload_path, 'w', encoding='utf-8') as f:
-        json.dump(flashcard_dict, f, indent=4)    
+        json.dump(flashcard_dict, f, indent=4)
+    make_database()
     return render_template("teacher/upload.html", flashcards=flashcard_dict)
 
 

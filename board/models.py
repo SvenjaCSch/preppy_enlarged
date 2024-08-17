@@ -7,3 +7,8 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(100))
     name = db.Column(db.String(1000))
     role = db.Column(db.String(50))  # Ensure this matches your role input
+
+class Flashcard(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    term = db.Column(db.String(100))
+    definition = db.Column(db.String(1000))
