@@ -5,10 +5,8 @@ import os
 import PyPDF2
 from openai import OpenAI
 import json
-import sqlite3
 from .models import Flashcard
 from . import db
-
 
 bp = Blueprint("teacher", __name__)
 
@@ -145,3 +143,8 @@ def upload_file():
         
         return redirect(url_for('teacher.upload'))
     return render_template('teacher/upload.html')
+
+@bp.route('/teacher_profile')
+@login_required
+def profile():
+    return render_template('teacher/profile.html', name=current_user.name, email=current_user.email, school=current_user.school, surname=current_user.surname)

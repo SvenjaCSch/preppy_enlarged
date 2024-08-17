@@ -225,6 +225,22 @@ a:visited {
   background-color: #d2ede6;
 }
 
+.myBtnprofile {
+  position: absolute;
+  right: 140px;
+  top: 10%;
+  transform: translateY(-50%);
+}
+
+.myBtnprofile a img.icon {
+  cursor: pointer;
+}
+
+.myBtnprofile a img.icon:hover {
+  background-color: #d2ede6;
+}
+
+
 /*Login and Signin*/
 
 article,
@@ -361,6 +377,11 @@ h3.title {
 .input.is-large {
     font-size: 1.25rem;
     width: 100%
+}
+
+.input.is-short {
+  font-size: 1.25rem;
+  width: 50%
 }
 
 .checkbox {
@@ -700,4 +721,20 @@ h3.title {
 
 .buttons {
   margin-top: 20px;
+}
+
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
 }

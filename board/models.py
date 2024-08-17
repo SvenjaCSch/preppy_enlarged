@@ -6,9 +6,19 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     name = db.Column(db.String(1000))
-    role = db.Column(db.String(50))  # Ensure this matches your role input
+    surname = db.Column(db.String(1000))
+    school = db.Column(db.String(100))
+    role = db.Column(db.String(50))
 
 class Flashcard(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     term = db.Column(db.String(100))
     definition = db.Column(db.String(1000))
+    course = db.Column(db.String(100))
+
+class Course(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    course = db.Column(db.String(100))
+    course_number = db.Column(db.String(20))
+    subject = db.Column(db.String(100))
+    teacher = db.Column(db.String(100))
