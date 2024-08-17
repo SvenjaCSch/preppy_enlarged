@@ -621,6 +621,12 @@ h3.title {
   background-color: #4CAF50;
 }
 
+#progress2 {
+  width: 0%;
+  height: 100%;
+  background-color: #4CAF50;
+}
+
 /*flashcards*/
 
 .flashcards_container {

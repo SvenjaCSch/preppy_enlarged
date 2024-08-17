@@ -6,14 +6,17 @@
         <form action="{{ url_for('teacher.upload_file') }}" method="post" enctype="multipart/form-data">
             <label for="file"><b>Upload Course Material</b></label>
             <input id="file" name="file" type="file" required />
-            <button onclick="move()">Upload</button>
+            <button onclick="move('progress')">Upload</button>
             <div class="progress-bar">
                 <div id="progress"></div>
             </div>
     
         </form>
         <form action="{{ url_for('teacher.generate_flashcards') }}" method="post">
-            <button type="submit" class="generate-btn">Generate Flashcards</button>
+            <button type="submit" onclick="move('progress2')">Generate Flashcards</button>
+            <div class="progress-bar">
+                <div id="progress2"></div>
+            </div>
         </form>
     </div>
 </div>
