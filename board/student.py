@@ -62,6 +62,37 @@ def flashcards():
     # Pass the flashcards data to the template
     return render_template('student/flashcards.html', flashcards=flashcards_data)
 
+@bp.route('/translate', methods=['POST'])
+def translate_flashcard():
+    data = request.json
+    term = data.get('term')
+    definition = data.get('definition')
+
+    # Construct the prompt for translation
+    prompt = (
+        f'Translate the following text to German:\n\n'
+        f'Term: {term}\nDefinition: {definition}\n\n'
+        'Your response should be in the format:\n{"translated_term": "[Your translation here]", "translated_definition": "[Your translation here]"}'
+    )
+
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=150
+    )
+
+    # Extract the translated term and definition from the response
+    translated = response.choices[0].message.content
+    translated_data = json.loads(translated)
+
+    return jsonify({
+        "translated_term": translated_data.get('translated_term'),
+        "translated_definition": translated_data.get('translated_definition')
+    })
+
 #####################################################
 # Login
 #####################################################

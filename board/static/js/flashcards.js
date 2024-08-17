@@ -31,8 +31,15 @@ window.flipCard = function() {
 // Function to show the next flashcard
 window.nextCard = function() {
     if (flashcards.length > 0) {
-        // Increment the current card index, wrap around if necessary
         currentCard = (currentCard + 1) % flashcards.length;
+        showCard(currentCard);
+    }
+};
+
+// Function to show the previous flashcard
+window.lastCard = function() {
+    if (flashcards.length > 0) {
+        currentCard = (currentCard - 1) % flashcards.length;
         showCard(currentCard);
     }
 };
@@ -50,3 +57,29 @@ document.addEventListener("DOMContentLoaded", function () {
         console.warn("No flashcards data available.");
     }
 });
+
+window.translateCard = function() {
+    if (flashcards.length > 0) {
+        const term = flashcards[currentCard].Term.trim();
+        const definition = flashcards[currentCard].Definition.trim();
+
+        // Make an AJAX request
+        fetch('/translate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ term: term, definition: definition })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.translated_term && data.translated_definition) {
+                document.getElementById('question').innerText = data.translated_term;
+                document.getElementById('answer').innerText = data.translated_definition;
+            } else {
+                console.error('Translation failed:', data);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+};
