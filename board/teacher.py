@@ -12,6 +12,9 @@ client = OpenAI(
     api_key=os.getenv("OPENAI"),
 )
 
+# print("OPEN AI key")
+# print(os.getenv("OPENAI"))
+
 def clear_text(text):
     text_lines = text.split('\n')
     text_lines = text_lines[10:-10]
@@ -54,26 +57,38 @@ def get_flashcards(text):
     flashcard_limit = 10
     flashcards = []
 
-    for chunk in chunks[:flashcard_limit]:
-        prompt = (
-            f"You are a STEM teacher. Create a flashcard from the following content:\n\n{chunk}\n\n"
-            "Your response should have the format:\n"
-            "{'Term': '[Your term here]','Definition': '[Your definition here]'},\n"
-            "Please do not include any numbers, labels, or extra text. Just give me the content as stated."
-        )
-        
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=150
-        )
-        card_content = response.choices[0].message.content.strip()
-        flashcards.append(card_content)
+    prompt = (
+        f'You are a STEM teacher. Create exactly {flashcard_limit} flashcards from the following content:\n\n{chunks}\n\n'
+        '''
+        Your response should have this format:\n
+        [{"Term": "[Your term here]", "Definition": "[Your definition here]"}, {"Term": "[Your term here]", "Definition": "[Your definition here]"}, {"Term": "[Your term here]", "Definition": "[Your definition here]"}, ... ]
+        Please do not include any numbers, labels, or extra text. Just give me the content as stated.
+        '''
+    )
 
-    return flashcards
+#   for chunk in chunks[:flashcard_limit]:
+#       prompt = ( 
+#            f'You are a STEM teacher. Create exactly one flashcards from the following content:\n\n{chunk}\n\n'
+#            '''
+#            Your response should have this format:\n
+#            {"Term": "[Your term here]", "Definition": "[Your definition here]"}
+#            Please do not include any numbers, labels, or extra text. Just give me the content as stated.
+#            '''
+#        )
+        
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=1500
+    )
+    card_content = response.choices[0].message.content.strip()
+    #flashcards.append(card_content)
+    # return flashcards
+    return card_content
+
 
 @bp.route('/generate_flashcards', methods=['POST'])
 def generate_flashcards():
@@ -86,20 +101,21 @@ def generate_flashcards():
     
     flashcards = get_flashcards(text) or []
     
-    for i in range(len(flashcards)):
-        original_flashcard = flashcards[i]
-        modified_flashcard = (
-            original_flashcard
-            .replace('\n', '')       # Replace newline with escaped newline
-            .replace('"{', '{') 
-            .replace('"', '\\"')        # Escape double quotes
-        )
-        flashcards[i] = modified_flashcard
+    # for i in range(len(flashcards)):
+    #      original_flashcard = flashcards[i]
+    #      modified_flashcard = (
+    #          original_flashcard
+    #          .replace('\n', '')       # Replace newline with escaped newline
+    #          .replace('"', '\\"')        # Escape double quotes
+    #          .replace('\"', '"')
+    #     )
+    #      flashcards[i] = modified_flashcard
 
     upload_path = os.path.join(flashcards_folder, 'flashcards.json')
+    flashcard_dict = json.loads(flashcards.replace('\n', ''))
     with open(upload_path, 'w', encoding='utf-8') as f:
-        json.dump(flashcards, f, indent=4)    
-    return render_template("teacher/upload.html", flashcards=flashcards)
+        json.dump(flashcard_dict, f, indent=4)    
+    return render_template("teacher/upload.html", flashcards=flashcard_dict)
 
 
 @bp.route('/upload_file', methods=['POST'])
