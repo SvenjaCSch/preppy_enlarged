@@ -221,3 +221,14 @@ def profile()->str:
     Passes the students name, surname, email and school to the student/profile.html
     """
     return render_template('student/profile.html', name=current_user.name, email=current_user.email, school=current_user.school, surname=current_user.surname)
+
+"""
+Get new course
+"""
+@bp.route('/login_course')
+@login_required
+def login_course()->str:
+    """
+    Redirect to the login course
+    """
+    return render_template('student/login_course.html')

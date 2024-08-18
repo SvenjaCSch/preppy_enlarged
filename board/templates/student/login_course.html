@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="main-content">
+    <div class="column is-4 is-offset-4">
+        <div class="box">
+            <h3 class="title">Login Course</h3>
+            <h4 class="title">Type the number you received from your teacher</h4>
+<form method="POST" action="/login_course">
+    <div class="field">
+        <div class="control">
+            <input class="input is-large" type="text" name="number" placeholder="Your Course Number" autofocus="">
+        </div>
+    </div>
+
+    <div class="buttons3">
+        <button type="button" class="button cancel"><a href="{{ url_for('student.profile') }}">Cancel</a></button>
+        <button type="submit" class="button is-info">Login</button>
+
+    </div>
+</div>
+</div>
+</form>
+{% endblock %}

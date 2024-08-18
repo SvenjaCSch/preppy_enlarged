@@ -2,6 +2,7 @@
 
 {% block content %}
 <div class="main-content">
+    <div class="box">
     <h1>Profile {{name}}</h1>
     <table class="table">
         <tbody>
@@ -24,10 +25,11 @@
         </tbody>
     </table>
 </div>
-
-<div class="main-content">
-    <h1>Subjects</h1>
-    
-    
+<div class="box">
+    <button><a href="{{ url_for('student.login_course') }}">get new course</a></button>
 </div>
+</div>
+
+
+
 {% endblock %}

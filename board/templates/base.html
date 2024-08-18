@@ -30,10 +30,14 @@
             <img src="{{ url_for('static', filename='images/logo.png') }}"alt="Graduation Cap Icon" class="graduation-icon">
           </a>
           {% endif %}
-          {% if current_user.is_authenticated %}
+          {% if current_user.role == "student" %}
           <a href="{{ url_for('student.landing') }}">
             <img src="{{ url_for('static', filename='images/Logo.png') }}"alt="Graduation Cap Icon" class="graduation-icon"></a>
             {% endif %}
+            {% if current_user.role == "teacher" %}
+            <a href="{{ url_for('teacher.landing') }}">
+              <img src="{{ url_for('static', filename='images/Logo.png') }}"alt="Graduation Cap Icon" class="graduation-icon"></a>
+              {% endif %}
           </div>
          
             <div class="myBtnhome">
