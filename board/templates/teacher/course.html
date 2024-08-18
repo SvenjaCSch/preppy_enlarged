@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="main-content">
+        <div class="box">
+            <h3 class="title">Create Course</h3>
+<form method="POST" action="/course_post">
+    <div class="field">
+        <div class="control">
+    <select name="subject" id="subject">
+        <option value="physics">physics</option>
+        <option value="chemistry">chemistry</option>
+        <option value="english">english</option>
+        <option value="biology">biology</option>
+        <option value="mathematics">mathematics</option>
+      </select>
+    </div>
+</div>
+    <div class="field">
+        <div class="control">
+            <input class="input is-large" type="text" name="course" placeholder="Your Class" autofocus="">
+        </div>
+    </div>
+    <input type="hidden" name="course_number" value="{{ request.args.get('course_number') }}">
+    <input type="hidden" name="teacher" value="{{ request.args.get('teacher') }}">
+    <div class="buttons3">
+        <button type="button" class="button cancel"><a href="{{ url_for('teacher.profile') }}">Cancel</a></button>
+        <button type="submit" class="button is-info">Login</button>
+
+    </div>
+</div>
+</form>
+{% endblock %}

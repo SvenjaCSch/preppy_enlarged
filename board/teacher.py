@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, current_app
+from flask import Blueprint, render_template, redirect, url_for, request, current_app, flash
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 import os
@@ -7,6 +7,10 @@ from openai import OpenAI
 import json
 from .models import Flashcard
 from . import db
+from .models import Course
+import secrets
+import string
+
 
 bp = Blueprint("teacher", __name__)
 
@@ -79,7 +83,7 @@ def get_flashcards(text:str)-> str:
         str: 10 Flashcards in JSON format
     """
     chunks = text.split('\n\n') 
-    flashcard_limit = 10
+    flashcard_limit = 50
 
     prompt = (
         f'You are a STEM teacher. Create exactly {flashcard_limit} flashcards from the following content:\n\n{chunks}\n\n'
@@ -182,10 +186,67 @@ def upload_file()->str:
         return redirect(url_for('teacher.upload'))
     return render_template('teacher/upload.html')
 
+"""
+Profile
+"""
+def get_courses():
+    """
+    get courses from teacher
+    """
+
+
 @bp.route('/teacher_profile')
 @login_required
 def profile()->str:
     """
     passes the name, surname, email, school to the website
     """
-    return render_template('teacher/profile.html', name=current_user.name, email=current_user.email, school=current_user.school, surname=current_user.surname)
+    course = Course.query.filter_by(teacher= current_user.id)
+    return render_template('teacher/profile.html', name=current_user.name, email=current_user.email, school=current_user.school, surname=current_user.surname, course=course)
+
+"""
+Create new course
+"""
+def generate_random_string(length:int) -> str:
+    """
+    Function that take lenght is parameter
+    """
+    # Generate random digits and number
+    alphabet = string.ascii_uppercase + string.digits
+    return ''.join(secrets.choice(alphabet) for i in range(length))
+
+@bp.route('/course')
+@login_required
+def login_course():
+    """
+    Redirect to the create course
+    """
+    return render_template('teacher/course.html')
+
+@bp.route('/course_post', methods=['POST'])
+def course_post()->str:
+    """
+    Takes course and subject as well as user.id, create number 
+    tests whether course already exists
+    If not, creates new course
+    """
+    course_name = request.form.get('course')
+    course_number = generate_random_string(10)
+    subject = request.form.get('subject')
+    teacher=current_user.id
+
+    course = Course.query.filter_by(course=course_name, subject=subject).first()
+
+    if course:
+         flash('Course already exists')
+         return redirect(url_for('teacher.profile'))
+    
+
+    new_course = Course(course=course_name, course_number=course_number, subject=subject, teacher=teacher)
+    db.session.add(new_course)
+    db.session.commit()
+
+    flash(f"New course created: {course} with subject: {subject}")
+    return redirect(url_for('teacher.profile'))
+
+
