@@ -14,61 +14,52 @@ client = OpenAI(
 
 history = []
 
-#####################################################
-# Upload
-#####################################################
 
-def read_file_with_multiple_encodings(filepath, encodings=['utf-8', 'ISO-8859-1', 'cp1252']):
-    if not os.path.exists(filepath):
-        print(f"File {filepath} does not exist.")
-        return "", ""  # Return empty values if the file doesn't exist
+"""
+Landing Page
+"""
 
-    for encoding in encodings:
-        try:
-            with open(filepath, 'r', encoding=encoding) as file:
-                text = file.read()
+@bp.route('/student_landing')
+@login_required
+def landing()->str:
+    """
+    Get the student into the landing page 
+    If not student but teacher, the person gets redirected to the login page
+    """
+    if current_user.role != 'student':
+        return redirect(url_for('auth.login'))
+    return render_template("student/landing.html", name=current_user.name)
 
-                # Remove references section assuming it starts with 'References' or 'REFERENCES'
-                ref_index = text.lower().find('references')
-                if ref_index != -1:
-                    text = text[:ref_index]
-            
-                return text.replace('\n', ' '), encoding
-            
-        except (UnicodeDecodeError, FileNotFoundError) as e:
-            print(f"Failed to read file {filepath} with encoding {encoding}: {e}")
-            continue  # Try the next encoding
-    raise UnicodeDecodeError(
-        "utf-8",  # encoding
-        b"",  # object (empty because we don't have the byte sequence)
-        0,  # start position
-        0,  # end position
-        f"Failed to decode file {filepath} with available encodings."
-    )
-
-#####################################################
-# Flashcards
-#####################################################
-
+"""
+Flashcards
+- Showing Flashcards on webpage
+- Translating Flashcards into German
+"""
     
 @bp.route("/flashcards")
-def flashcards():
-    # Query the flashcards from the database
+def flashcards()->str:
+    """
+    Gets the query of the flashcards from the database and converts them into a list of dictionaries
+    Output:
+    - Pass the flashcards data to the template
+    """
     flashcards = Flashcard.query.all()
-
-    # Convert the flashcards to a list of dictionaries
     flashcards_data = [{"Term": fc.term, "Definition": fc.definition} for fc in flashcards]
-
-    # Pass the flashcards data to the template
     return render_template('student/flashcards.html', flashcards=flashcards_data)
 
 @bp.route('/translate', methods=['POST'])
-def translate_flashcard():
+def translate_flashcard()->json:
+    """
+    translates the flashcards into German
+    Construct the prompt for translation with gpt-3.5-turbo and 150 max tokens 
+    Extract the translated term and definition from the response
+    Output:
+    Returns JSON file with translated term and translated definition
+    """
     data = request.json
     term = data.get('term')
     definition = data.get('definition')
 
-    # Construct the prompt for translation
     prompt = (
         f'Translate the following text to German:\n\n'
         f'Term: {term}\nDefinition: {definition}\n\n'
@@ -84,8 +75,6 @@ def translate_flashcard():
         max_tokens=150
     )
     
-
-    # Extract the translated term and definition from the response
     translated = response.choices[0].message.content
     translated_data = json.loads(translated)
 
@@ -94,51 +83,75 @@ def translate_flashcard():
         "translated_definition": translated_data.get('translated_definition')
     })
 
-#####################################################
-# Login
-#####################################################
+"""
+Chatbot
+- get the right encoding of the input text
+- get the chatbot response
+"""
+def read_file_with_multiple_encodings(filepath:str, encodings:list[str]=['utf-8', 'ISO-8859-1', 'cp1252'])->str:
+    """
+    Trys the file in different encodings: 'utf-8', 'ISO-8859-1', 'cp1252' to decode the file correctly
+    Arguments: 
+        str: filepath and encodung possibilities
+        lst[str]: encodings
+    Returns:
+        str: file in correct encoding
+        err: empty values if the file doesn't exist
+    """
+    if not os.path.exists(filepath):
+        print(f"File {filepath} does not exist.")
+        return "", ""  
 
-@bp.route('/student_landing')
-@login_required
-def landing():
-    if current_user.role != 'student':
-        return redirect(url_for('auth.login'))
-    return render_template("student/landing.html", name=current_user.name)
+    for encoding in encodings:
+        try:
+            with open(filepath, 'r', encoding=encoding) as file:
+                text = file.read()
+                # Remove references section assuming it starts with 'References' or 'REFERENCES'
+                ref_index = text.lower().find('references')
+                if ref_index != -1:
+                    text = text[:ref_index]
+            
+                return text.replace('\n', ' '), encoding
+            
+        except (UnicodeDecodeError, FileNotFoundError) as e:
+            print(f"Failed to read file {filepath} with encoding {encoding}: {e}")
+            continue 
+    raise UnicodeDecodeError(
+        "utf-8", 
+        b"", 
+        0, 
+        0, 
+        f"Failed to decode file {filepath} with available encodings."
+    )
 
-#####################################################
-# Chatbot
-#####################################################
 
 @bp.route("/chatbot", methods=['GET', 'POST'])
 @login_required
 def chatbot():
+    """
+    Reads the text from the imput form the user wrote into on the website
+    redirects to the response function
+    """
     answer = ""
     if request.method == 'POST':
         submitted_text = request.form['textbox']
         answer = get_response(submitted_text)
         history.append((submitted_text, answer))
-    
     return render_template("student/chatbot.html", message=history)
 
-@bp.route("/app_response", methods=['GET', 'POST'])
-def app_response():
-    answer = ""
-    submitted_text = request.args.get('text')
-    
-    if request.method == 'POST' or request.method == 'GET':
-        answer = get_response(submitted_text)
-        history.append((submitted_text, answer))
-    
-    return jsonify({"history": history})
-
-
-def get_response(question):
+def get_response(question:str)->str:
+    """
+    Get a response of the chatbot depending on the question of the student
+    Read the prompt_extension when needed
+    Define the initial messages for the conversation, ensuring they are concise
+    Trim the history to fit within the token limit with 256 tokens reserved for response
+    Combine the messages for the conversation
+    Handle rate limit error and openai error gracefully
+    """
     try:
-        # Read the prompt_extension when needed
         file_path = os.path.join(current_app.instance_path, 'texts', 'text.txt')
         prompt_extension, used_encoding = read_file_with_multiple_encodings(file_path)
 
-        # Define the initial messages for the conversation, ensuring they are concise
         initial_messages = [
             {
                 "role": "system",
@@ -160,9 +173,8 @@ def get_response(question):
 
         initial_token_count = sum(len(message['content'].split()) for message in initial_messages)
 
-        # Trim the history to fit within the token limit
         max_total_tokens = 16385
-        max_history_tokens = max_total_tokens - initial_token_count - 256  # 256 tokens reserved for response
+        max_history_tokens = max_total_tokens - initial_token_count - 256  
         trimmed_history = []
 
         current_token_count = 0
@@ -176,7 +188,6 @@ def get_response(question):
             else:
                 break
 
-        # Combine the messages for the conversation
         messages = initial_messages + trimmed_history
 
         response = client.chat.completions.create(
@@ -193,20 +204,20 @@ def get_response(question):
         return processed
     
     except openai.RateLimitError as e:
-        # Handle rate limit error gracefully
         print("Rate limit exceeded. Please wait and try again.")
         return "Rate limit exceeded. Please wait and try again."
     
     except openai.OpenAIError as e:
-        # Handle other OpenAI API errors
         print(f"OpenAI API error: {e}")
         return f"OpenAI API error: {e}"
 
-#####################################################
-# Profile
-#####################################################
-
+"""
+Profile
+"""
 @bp.route('/student_profile')
 @login_required
-def profile():
+def profile()->str:
+    """
+    Passes the students name, surname, email and school to the student/profile.html
+    """
     return render_template('student/profile.html', name=current_user.name, email=current_user.email, school=current_user.school, surname=current_user.surname)
