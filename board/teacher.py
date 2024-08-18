@@ -35,9 +35,9 @@ def clear_text(text:str)-> str:
     """
     Deletes text information that is not needed 
     Arguments:
-    - text
+        str: text
     Returns
-    - cleared text
+        str: cleared text
     """
     text_lines = text.split('\n')
     #cuts out the the first and the last 10 lines to avoid the pdfs frame information
@@ -54,9 +54,9 @@ def summarize(material:str)-> str:
     """
     summarizes the given text with gpt-3.5-turbo LLM. 
     Argiments:
-    - cleared text
+        str: cleared text
     Returns: 
-    - summarizes text with max 600 tokens
+        str: summarizes text with max 600 tokens
     """
     summary_prompt = f"Point out the core concepts of following course material in a way that fits within 600 tokens:\n\n{material}."
     summary_response = client.chat.completions.create(
@@ -74,9 +74,9 @@ def get_flashcards(text:str)-> str:
     """
     Creates flashcards in JSON format via gpt-3.5-turbo
     Arguments:
-    -summarized text
+        str: summarized text
     Returns:
-    -10 Flashcards in JSON format
+        str: 10 Flashcards in JSON format
     """
     chunks = text.split('\n\n') 
     flashcard_limit = 10
