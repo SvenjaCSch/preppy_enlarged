@@ -18,8 +18,8 @@ CREATE TABLE user (
 
 CREATE TABLE courses (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    course = VARCHAR(100) NOT NULL,
-    course_number = VARCHAR(100) NOT NULL, 
-    subject = VARCHAR(100) NOT NULL,
-    teacher = VARCHAR(100) NOT NULL
+    course VARCHAR(100) NOT NULL,
+    course_number VARCHAR(100) NOT NULL, 
+    subject VARCHAR(100) NOT NULL,
+    teacher VARCHAR(100) NOT NULL
 );

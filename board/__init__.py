@@ -3,14 +3,22 @@ from dotenv import load_dotenv
 from flask import Flask, request, session, current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
-
-# Load environment variables
+from typing import Any
+"""
+Load environment variables
+Initialize the SQLAlchemy database instance
+Creates App
+"""
 load_dotenv()
-
-# Initialize the SQLAlchemy database instance
 db = SQLAlchemy()
 
-def create_app():
+def create_app()-> Any:
+    """
+    Setting and initalizing the database
+    creates upload dictionary used in teacher.py
+    register blueprints to access 
+    initialize login manager and users information
+    """
     app = Flask(__name__)
     app.config.from_prefixed_env()
     app.logger.setLevel("INFO")
@@ -64,5 +72,4 @@ def create_app():
     @app.context_processor
     def inject_current_route():
         return dict(current_route=request.endpoint, previous_url=request.referrer, is_authenticated=current_user.is_authenticated)
-
     return app

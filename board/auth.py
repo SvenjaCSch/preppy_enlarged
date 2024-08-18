@@ -5,40 +5,44 @@ from .models import User
 from . import db
 
 auth = Blueprint('auth', __name__)
-
+"""
+Login
+"""
 @auth.route('/login')
-def login():
+def login()->str:
+    """
+    redirects to login page
+    """
     return render_template('auth/login.html')
 
 @auth.route('/login', methods=['POST'])
-def login_post():
+def login_post()->str:
+    """
+    testing the input information in the login process to redirect to the right landing page
+    """
+    #Taking email and passwort
     email = request.form.get('email')
     password = request.form.get('password')
     remember = request.form.get('remember', 'false').lower() == 'true'
 
-    # Fetch the user based on the email
+    #Fetch the user based on the email
     user = User.query.filter_by(email=email).first()
-
-    # Check if user exists
+    #Check if user exists
     if not user:
         flash(f"No user found with email: {email}")
         flash('Please check your login details and try again.')
         return redirect(url_for('auth.login'))
-
-    # Check if password matches
+    #Check if password matches
     if not check_password_hash(user.password, password):
         flash("Password check failed.")
         flash('Please check your login details and try again.')
         return redirect(url_for('auth.login'))
-
-    # Log the user in
+    #Log the user in
     login_user(user, remember=remember)
-
-    # Ensure role is processed correctly
+    #Ensure role is processed correctly
     user_role = user.role.strip().lower()
     flash(f"Processed user role: {user_role}")
-
-    # Redirect based on user role
+    #Redirect based on user role
     if user_role == 'student':
         flash("Redirecting to student landing page.")
         return redirect(url_for('student.landing'))  # Redirect to student landing page
@@ -49,13 +53,23 @@ def login_post():
         flash("Unknown role for user, redirecting to login.")
         return redirect(url_for('auth.login'))
 
-    
+"""
+Sign up
+"""
 @auth.route('/signup')
-def signup():
+def signup()->str:
+    """
+    Pass to the sign up page
+    """
     return render_template('auth/signup.html')
 
 @auth.route('/signup', methods=['POST'])
-def signup_post():
+def signup_post()->str:
+    """
+    Takes email, name, surname, school, passwort and role (hidden)
+    tests whether user already exists
+    If not, creates new user
+    """
     email = request.form.get('email')
     name = request.form.get('name')
     surname = request.form.get('surname')
@@ -76,10 +90,14 @@ def signup_post():
     flash(f"New user created: {email} with role: {role}")
     return redirect(url_for('auth.login'))
 
-
-
+"""
+Logout
+"""
 @auth.route('/logout')
 @login_required
-def logout():
+def logout()->str:
+    """
+    Logs out the user and redirects to the main page
+    """
     logout_user()
     return redirect(url_for('pages.home'))
