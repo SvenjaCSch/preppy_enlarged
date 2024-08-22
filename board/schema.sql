@@ -26,9 +26,10 @@ CREATE TABLE course (
     FOREIGN KEY (teacher) REFERENCES user(id)
 );
 
-CREATE TABLE course_student(
+CREATE TABLE relation_student_course(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     course_id INTEGER NOT NULL,
-    user_id INTEGER NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES user(id),
+    student_id INTEGER NOT NULL,
+    FOREIGN KEY (student_id) REFERENCES user(id),
     FOREIGN KEY (course_id) REFERENCES courses(id)
 );

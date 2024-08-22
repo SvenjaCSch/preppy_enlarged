@@ -26,10 +26,25 @@
     </table>
 </div>
 <div class="box">
+    <table id="data" class="table table-striped">
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Class</th>
+            <th>Course Number</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for cou in course_for_student %}
+            <tr>
+              <td>{{ cou.subject }}</td>
+              <td>{{ cou.course }}</td>
+              <td>{{ cou.course_number }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     <button><a href="{{ url_for('student.login_course') }}">get new course</a></button>
 </div>
 </div>
-
-
-
 {% endblock %}

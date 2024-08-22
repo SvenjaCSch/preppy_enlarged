@@ -34,3 +34,12 @@ class Course(db.Model, UserMixin):
     course_number = db.Column(db.String(20))
     subject = db.Column(db.String(100))
     teacher = db.Column(db.String(100))
+
+"""
+Combines Course and Student information
+"""
+
+class RelationStudentCourse(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    course_id=db.Column(db.Integer)
+    student_id=db.Column(db.Integer)

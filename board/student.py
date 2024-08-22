@@ -1,10 +1,11 @@
-from flask import Blueprint, render_template, request, jsonify, redirect, url_for, current_app
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, current_app, flash
 from flask_login import login_required, current_user
 from openai import OpenAI
 import openai
 import os
 import json
-from .models import Flashcard
+from .models import Flashcard, Course, RelationStudentCourse
+from . import db
 
 bp = Blueprint("student", __name__)
 
@@ -14,11 +15,9 @@ client = OpenAI(
 
 history = []
 
-
 """
 Landing Page
 """
-
 @bp.route('/student_landing')
 @login_required
 def landing()->str:
@@ -35,7 +34,6 @@ Flashcards
 - Showing Flashcards on webpage
 - Translating Flashcards into German
 """
-    
 @bp.route("/flashcards")
 def flashcards()->str:
     """
@@ -232,3 +230,23 @@ def login_course()->str:
     Redirect to the login course
     """
     return render_template('student/login_course.html')
+
+@bp.route('/login_course_post', methods=['POST'])
+@login_required
+def login_course_post()->str:
+    course_num = request.form.get('course_number')
+    course = Course.query.filter_by(course_number=course_num).first()
+
+    if not course:
+         flash('Course number does not exist')
+         return redirect(url_for('students.profile'))
+    else:
+        studentcourse = RelationStudentCourse.query.filter_by(course_id=course_num).first()
+        if not studentcourse:   
+            studentcourse = RelationStudentCourse(course_id=course_num, student_id=current_user.id)
+            db.session.add(studentcourse)
+            db.session.commit()
+    studentcourse = RelationStudentCourse.query.filter_by(student_id=current_user.id)
+    for courses in studentcourse:
+         course_for_student = Course.query.filter_by(course_number=courses.course_id)
+    return render_template('student/profile.html',course_for_student=course_for_student)
