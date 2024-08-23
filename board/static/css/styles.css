@@ -359,12 +359,23 @@ h3.title {
   justify-content: center;
 
 }
+.field_upload {
+  margin-bottom: 1.5rem;
+  width: 100%;
+  display: flex;
+
+}
 
 .control {
     width: 100%;
     display: flex;
     justify-content: center;
 }
+.control_upload {
+  width: 100%;
+  display: flex;
+}
+
 
 .input {
     width: 100%;

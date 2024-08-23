@@ -33,3 +33,11 @@ CREATE TABLE relation_student_course(
     FOREIGN KEY (student_id) REFERENCES user(id),
     FOREIGN KEY (course_id) REFERENCES courses(id)
 );
+
+CREATE TABLE uplouds(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name_pdf VARCHAR(100), 
+    location_pdf VARCHAR(100),
+    course_pdf VARCHAR(100),
+    summary VARCHAR(1000)
+);

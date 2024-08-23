@@ -105,10 +105,11 @@ def get_flashcards(text:str)-> str:
     card_content = response.choices[0].message.content.strip()
     return card_content
 
-def make_database()->None:
+def make_database(course)->None:
     """
     uses the generated flashcards in JSON to generate the Flashcard database in models.py
     """
+    course=course
     traffic = json.load(open('instance/flashcards/flashcards.json'))
     columns = ['Term', 'Definition']
 
@@ -117,7 +118,7 @@ def make_database()->None:
         flashcard = Flashcard.query.filter_by(term=keys[0]).first()
         #Check if flashcard exists to avoid double flashcards 
         if not flashcard:
-            new_flashcard = Flashcard(term=keys[0], definition=keys[1] )
+            new_flashcard = Flashcard(term=keys[0], definition=keys[1], course=course)
             db.session.add(new_flashcard)
             db.session.commit() 
 
@@ -127,13 +128,15 @@ def upload()->str:
     """
     Pass to the upload page
     """
-    return render_template('teacher/upload.html')
+    courses = Course.query
+    return render_template('teacher/upload.html', courses=courses)
 
 @bp.route('/generate_flashcards', methods=['POST'])
 def generate_flashcards()->str:
     """
     generates the flashcards
     """
+    course = request.form.get('course')
     flashcards_folder = os.path.join(current_app.instance_path, 'flashcards')
     os.makedirs(flashcards_folder, exist_ok=True)
     file_path = os.path.join(current_app.instance_path, 'texts', 'text.txt')
@@ -147,7 +150,7 @@ def generate_flashcards()->str:
     flashcard_dict = json.loads(flashcards.replace('\n', ''))
     with open(upload_path, 'w', encoding='utf-8') as f:
         json.dump(flashcard_dict, f, indent=4)
-    make_database()
+    make_database(course)
     return render_template("teacher/upload.html", flashcards=flashcard_dict)
 
 @bp.route('/upload_file', methods=['POST'])
@@ -182,7 +185,7 @@ def upload_file()->str:
             text_path = os.path.join(text_folder, 'text.txt')
             with open(text_path, 'a', encoding='utf-8') as file1:
                 file1.write(text_summa)
-        
+        generate_flashcards()
         return redirect(url_for('teacher.upload'))
     return render_template('teacher/upload.html')
 
