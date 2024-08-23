@@ -216,9 +216,18 @@ Profile
 @login_required
 def profile()->str:
     """
-    Passes the students name, surname, email and school to the student/profile.html
+    Passes the students name, surname, email, school and a list of associated courses with the current student to the student/profile.html
     """
-    return render_template('student/profile.html', name=current_user.name, email=current_user.email, school=current_user.school, surname=current_user.surname)
+    
+    # go through the relation table for all the courses of the student
+    studentCourseAllRel = RelationStudentCourse.query.filter_by(student_id=current_user.id).all()
+
+    # for each of these courses search for the course in the course table
+    course_for_student = []
+    for courses in studentCourseAllRel:
+         course_for_student.append(Course.query.filter_by(course_number=courses.course_id).first())
+
+    return render_template('student/profile.html', name=current_user.name, email=current_user.email, school=current_user.school, surname=current_user.surname, course_for_student=course_for_student)
 
 """
 Get new course
@@ -234,19 +243,20 @@ def login_course()->str:
 @bp.route('/login_course_post', methods=['POST'])
 @login_required
 def login_course_post()->str:
+    """
+    gets courses for the student
+    """
     course_num = request.form.get('course_number')
     course = Course.query.filter_by(course_number=course_num).first()
-
+    # if the number is wrong
     if not course:
          flash('Course number does not exist')
-         return redirect(url_for('students.profile'))
+         return redirect(url_for('student.login_course'))
     else:
-        studentcourse = RelationStudentCourse.query.filter_by(course_id=course_num).first()
+        # if the number is right search in relation table for the course. If not in there, insert 
+        studentcourse = RelationStudentCourse.query.filter_by(course_id=course_num, student_id=current_user.id).first()
         if not studentcourse:   
-            studentcourse = RelationStudentCourse(course_id=course_num, student_id=current_user.id)
-            db.session.add(studentcourse)
+            queryNewStudenCourseRel = RelationStudentCourse(course_id=course_num, student_id=current_user.id)
+            db.session.add(queryNewStudenCourseRel)
             db.session.commit()
-    studentcourse = RelationStudentCourse.query.filter_by(student_id=current_user.id)
-    for courses in studentcourse:
-         course_for_student = Course.query.filter_by(course_number=courses.course_id)
-    return render_template('student/profile.html',course_for_student=course_for_student)
+    return profile()
