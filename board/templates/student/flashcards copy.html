@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="flashcards_container">
+    <h1>Flashcards</h1>
+    <form action="{{ url_for('student.flashcards_test') }}" method="get">
+        <h4>Select course: </h4>
+        <div class="field_upload">
+            <div class="control_upload">
+                <select name="courseId" id="courseId">
+                    {% for course in course_for_student%}
+                    <option value="{{ course.id }}">{{ course.subject}} {{ course.course}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <!-- <button type="button" class="generate-btn" onclick="showCard(0)">View Flashcards</button> -->
+         <input type="submit" value="Show flashcard"/>
+    </form>
+
+    <!-- Store flashcards data in a data attribute -->
+    <!-- <form action="" method="get"> -->
+    
+    <div class="reload_test"> 
+        <!-- <div id="flashcards" data-flashcards='{{ flashcards|tojson|safe }}' style="display:none;"></div> -->
+
+        <div class="flashcard" id="flashcard">
+            <div class="front">
+                <p id="question"></p>
+            </div>
+            <div class="back">
+                <p id="answer"></p>
+            </div>
+        </div>
+        <div class="buttons">
+            <button onclick="flipCard()" class="action-btn">Flip Card</button>
+            <button onclick="nextCard()" class="action-btn">Next Card</button>
+            <button onclick="lastCard()" class="action-btn">Last Card</button>
+            <button onclick="translateCard()" class="action-btn">German</button>
+        </div>
+    </div>
+    <!-- </form> -->
+</div>
+<script src="{{ url_for('static', filename='js/flashcards.js') }}"></script>
+{% endblock %}
+

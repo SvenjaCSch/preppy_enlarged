@@ -34,38 +34,56 @@ Flashcards
 - Showing Flashcards on webpage
 - Translating Flashcards into German
 """
-@bp.route("/flashcards")
-def flashcards()->str:
+@bp.route("/course_selection")
+def course_selection()->str:
     """
     Gets the query of the flashcards from the database and converts them into a list of dictionaries
     Output:
     - Pass the flashcard and course data to the template
     """
-    flashcards = Flashcard.query.all()
-    flashcards_data = [{"Term": fc.term, "Definition": fc.definition} for fc in flashcards]
-    # go through the relation table for all the courses of the student
+    # flashcards = Flashcard.query.all()
+    # flashcards_data = [{"Term": fc.term, "Definition": fc.definition} for fc in flashcards]
+    # # go through the relation table for all the courses of the student
     studentCourseAllRel = RelationStudentCourse.query.filter_by(student_id=current_user.id).all()
 
     # for each of these courses search for the course in the course table
     course_for_student = []
     for courses in studentCourseAllRel:
          course_for_student.append(Course.query.filter_by(course_number=courses.course_id).first())
-    return render_template('student/flashcards.html', course_for_student=course_for_student, flashcards=flashcards_data)
+    return render_template('student/course_selection.html', course_for_student=course_for_student)
 
-@bp.route("/flashcards_post", methods=['POST'])
-def flashcards_post()->str:
+@bp.route("/flashcards", methods=['POST'])
+def flashcards()->str:
     """
     Gets the query of the flashcards from the database and converts them into a list of dictionaries
     Output:
     - Pass the flashcard and course data to the template
     """
-    course = request.form.get('course')
+    course_id = request.form.get('course_id')
     print("course id: ")
-    print(course)
-    # flashcards = Flashcard.query.filter_by(course_id=course).all()
-    # flashcards_data = [{"Term": fc.term, "Definition": fc.definition} for fc in flashcards]
-    return render_template('student/flashcards.html')
-    # return render_template('student/flashcards.html', flashcards=flashcards_data)
+    print(course_id)
+    flashcards = Flashcard.query.filter_by(course=course_id).all()
+    flashcards_data = [{"Term": fc.term, "Definition": fc.definition} for fc in flashcards]
+    print(flashcards_data)
+    course = Course.query.filter_by(id=course_id).first()
+    return render_template('student/flashcards.html', course=course, flashcards=flashcards_data)
+
+# ## START - playground TK
+# @bp.route("/flashcards_test", methods=['POST'])
+# def flashcards_post()->str:
+#     """
+#     Gets the query of the flashcards from the database and converts them into a list of dictionaries
+#     Output:
+#     - Pass the flashcard and course data to the template
+#     """
+#     course = request.form.get('courseId')
+#     print("course id: ")
+#     print(course)
+#     flashcards = Flashcard.query.filter_by(course_id=course).all()
+#     flashcards_data = [{"Term": fc.term, "Definition": fc.definition} for fc in flashcards]
+#     return render_template('student/flashcards_copy.html', courseFlashcards = flashcards)
+#     # return render_template('student/flashcards.html', flashcards=flashcards_data)
+# ## END - playground TK
 
 @bp.route('/translate', methods=['POST'])
 def translate_flashcard()->json:
