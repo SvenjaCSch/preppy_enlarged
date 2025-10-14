@@ -1,5 +1,5 @@
-# Preppy
-An AI driven exam preparation tool for students in the age between 13-16. Teacher can upload their material. The AI creates flashcards, a mockup exam and gives help as a chatbot. The Tool is webbased. 
+# Preppy: Flash Card Generator and Learning Assistant Tool
+An AI driven exam preparation tool for students in the age between 13-16. Teacher can upload their material. The AI creates flashcards, a mockup exam and gives help as a chatbot. The Tool is webbased and uses RAG for the upload. A Docker image is provided. 
 
 ## Installation guide
 This repository was created under python 3.12.4. 
@@ -37,6 +37,18 @@ OPENAI="YOUR_OPENAI_API_KEY" #for that you have to create an own API. Please che
 SECURITY_PASSWORD_SALT = "YOUR_SECURITY_PASSWORD_SALT" #random key with characters and numbers
 BYTES = 749000
 FOLDER = "board\static\pdfs"
+HTTP_PROXY=
+HTTPS_PROXY=
+NO_PROXY=
+```
+### Docker
+You can download a docker-image to this project. For Windows or Mac with Docker Windows use:
+```bash
+docker pull svenjacsch/preppy_flashcards:1.0
+```
+For Linux use:
+```bash
+sudo docker pull svenjacsch/preppy_flashcards:1.0
 ```
 ### Database
 Next you have to set up the database. For **Windows** use:

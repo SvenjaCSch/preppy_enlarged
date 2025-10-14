@@ -6,12 +6,27 @@ import os
 import json
 from .models import Flashcard, Course, RelationStudentCourse
 from . import db
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_community.vectorstores import Chroma
+from datetime import datetime
+from langchain_openai import ChatOpenAI
+from langchain.chains import RetrievalQA
+from langchain import PromptTemplate
+import httpx
 
 bp = Blueprint("student", __name__)
 
-client = OpenAI(
-    api_key=os.getenv("OPENAI"),
+HTTPX_CLIENT = httpx.Client(
+    trust_env=False
 )
+
+llm = ChatOpenAI(
+    api_key=os.getenv("OPENAI_API_KEY"),
+    model="gpt-3.5-turbo",
+    client=HTTPX_CLIENT,
+)
+
 
 history = []
 
@@ -68,22 +83,6 @@ def flashcards()->str:
     course = Course.query.filter_by(id=course_id).first()
     return render_template('student/flashcards.html', course=course, flashcards=flashcards_data)
 
-# ## START - playground TK
-# @bp.route("/flashcards_test", methods=['POST'])
-# def flashcards_post()->str:
-#     """
-#     Gets the query of the flashcards from the database and converts them into a list of dictionaries
-#     Output:
-#     - Pass the flashcard and course data to the template
-#     """
-#     course = request.form.get('courseId')
-#     print("course id: ")
-#     print(course)
-#     flashcards = Flashcard.query.filter_by(course_id=course).all()
-#     flashcards_data = [{"Term": fc.term, "Definition": fc.definition} for fc in flashcards]
-#     return render_template('student/flashcards_copy.html', courseFlashcards = flashcards)
-#     # return render_template('student/flashcards.html', flashcards=flashcards_data)
-# ## END - playground TK
 
 @bp.route('/translate', methods=['POST'])
 def translate_flashcard()->json:
@@ -104,7 +103,7 @@ def translate_flashcard()->json:
         'Your response should be in the format:\n{"translated_term": "[Your translation here]", "translated_definition": "[Your translation here]"}'
     )
 
-    response = client.chat.completions.create(
+    response = llm.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
@@ -177,6 +176,7 @@ def chatbot():
         history.append((submitted_text, answer))
     return render_template("student/chatbot.html", message=history)
 
+'''
 def get_response(question:str)->str:
     """
     Get a response of the chatbot depending on the question of the student
@@ -249,6 +249,8 @@ def get_response(question:str)->str:
         print(f"OpenAI API error: {e}")
         return f"OpenAI API error: {e}"
 
+
+'''
 """
 Profile
 """
@@ -300,3 +302,62 @@ def login_course_post()->str:
             db.session.add(queryNewStudenCourseRel)
             db.session.commit()
     return profile()
+
+
+embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+
+def get_vector_db(user_id):
+    persist_dir = os.path.join("instance", "vector_db", str(user_id))
+    os.makedirs(persist_dir, exist_ok=True)
+    return Chroma(persist_directory=persist_dir, embedding_function=embeddings)
+
+def get_response(question: str) -> str:
+    """
+    Give an answer based on the course
+    Get Embedding DB for the user
+    get similar texts
+    if nothing found: fallback to general GPT
+    """
+    try:
+        chroma_db = get_vector_db(current_user.id)
+        results = chroma_db.similarity_search(question, k=5)
+        if not results:
+            context = "Kein passender Kontext gefunden."
+        else:
+            context = "\n".join([r.page_content for r in results])
+
+        system_prompt = (
+            f"""You are a patient STEM teacher for students between 12 and 15 years. 
+            Explain concepts behind in a simple way with easy examples.
+            Only use the context if possible. 
+            """
+        )
+
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {question}"}
+        ]
+
+        response = llm.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages,
+            max_tokens=300,
+            temperature=0.7
+        )
+
+        answer = response.choices[0].message.content.strip()
+        return answer
+
+    except Exception as e:
+        print(f"Error in the RAG-Chatbot: {e}")
+        return "There was a Problem in retrieving the answer"
+
+@bp.route("/ask", methods=["POST"])
+@login_required
+def ask():
+    question = request.json["question"]
+    answer = get_response(question)
+    return jsonify({"answer": answer})
+
+
+# in JS: fetch("/ask", {method: "POST", body: JSON.stringify({question: "Was ist ein neuronales Netz?"})})

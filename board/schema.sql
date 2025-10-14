@@ -41,3 +41,14 @@ CREATE TABLE uplouds(
     course_pdf VARCHAR(100),
     summary VARCHAR(1000)
 );
+
+-- Tabelle zur Verknüpfung von SQLite-Uploads und Chroma-Embeddings
+CREATE TABLE vector_refs(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    upload_id INTEGER NOT NULL,
+    vector_id TEXT NOT NULL,
+    chunk_index INTEGER DEFAULT 0,
+    metadata TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (upload_id) REFERENCES uploads (id) ON DELETE CASCADE
+);

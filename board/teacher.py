@@ -10,6 +10,10 @@ from . import db
 from .models import Course
 import secrets
 import string
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.vectorstores import Chroma
+from datetime import datetime
 
 
 bp = Blueprint("teacher", __name__)
@@ -253,3 +257,31 @@ def course_post()->str:
     return redirect(url_for('teacher.profile'))
 
 
+def process_upload(file_text, source, upload_id):
+    """
+    Verarbeitet einen Text (z. B. aus einem PDF-Upload):
+    - teilt ihn in Chunks auf
+    - erstellt Embeddings in Chroma
+    - speichert Referenzen in SQLite (vector_refs)
+    """
+    splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+    docs = splitter.create_documents(
+        [file_text],
+        metadatas=[{"uploaded_at": datetime.now().isoformat(), "source": source}]
+    )
+    embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+    db_chroma = Chroma(persist_directory="./vector_db", embedding_function=embeddings)
+    results = db_chroma.add_documents(docs)
+    db_chroma.persist()
+
+    db_sqlite = get_db()
+    for i, doc in enumerate(docs):
+        vector_id = results["ids"][i]  # ID des Embeddings in Chroma
+        db_sqlite.execute(
+            """
+            INSERT INTO vector_refs (upload_id, vector_id, chunk_index, metadata)
+            VALUES (?, ?, ?, ?)
+            """,
+            (upload_id, vector_id, i, json.dumps(doc.metadata))
+        )
+    db_sqlite.commit()

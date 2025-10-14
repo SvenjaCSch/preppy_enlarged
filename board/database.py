@@ -2,6 +2,7 @@ import sqlite3
 import click
 from flask import current_app, g
 from typing import Any
+import json
 
 def init_app(app):
     """
@@ -47,3 +48,51 @@ def close_db(e=Any)->None:
 
     if db is not None:
         db.close()
+
+def add_vector_ref(db, upload_id: int, vector_id: str, chunk_index: int = 0, metadata: dict | None = None):
+    """
+    Fügt einen neuen Eintrag in vector_refs hinzu
+    """
+    db.execute(
+        "INSERT INTO vector_refs (upload_id, vector_id, chunk_index, metadata) VALUES (?, ?, ?, ?)",
+        (upload_id, vector_id, chunk_index, json.dumps(metadata) if metadata else None)
+    )
+    db.commit()
+
+
+def get_vectors_for_upload(db, upload_id: int):
+    """
+    Holt alle vector_id-Einträge zu einem bestimmten Upload
+    """
+    return db.execute(
+        "SELECT vector_id FROM vector_refs WHERE upload_id = ?",
+        (upload_id,)
+    ).fetchall()
+
+
+def delete_vectors_for_upload(db, upload_id: int, chroma_client):
+    """
+    Löscht alle Vektoren in Chroma und die Referenzen in SQLite
+    """
+    vectors = get_vectors_for_upload(db, upload_id)
+    for v in vectors:
+        chroma_client.delete(ids=[v["vector_id"]])
+    db.execute("DELETE FROM vector_refs WHERE upload_id = ?", (upload_id,))
+    db.commit()
+
+#db = Chroma(persist_directory=f"./vector_db/{user_id}", embedding_function=embeddings)
+
+"""
+# Nach dem Einfügen eines Dokuments in Chroma
+vector_id = chroma.add_embedding(vector, metadata={"page":1})
+cursor.execute(
+    "INSERT INTO vector_refs (upload_id, vector_id, chunk_index) VALUES (?, ?, ?)",
+    (upload_id, vector_id, chunk_index)
+)
+conn.commit()
+
+# Alle Embeddings eines Dokuments löschen
+cursor.execute("SELECT vector_id FROM vector_refs WHERE upload_id=?", (upload_id,))
+for vector_id in cursor.fetchall():
+    chroma.delete_embedding(vector_id)
+"""
